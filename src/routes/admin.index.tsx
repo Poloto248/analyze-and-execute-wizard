@@ -71,10 +71,11 @@ function AdminDashboard() {
   const [units, setUnits] = useState<TailoringUnit[]>([
     {
       id: '1', name: 'مزون مرکزی مگراز', managerName: 'علی مگرازی',
-      uniqueId: 'MGZ-MAIN-01', apiId: 'api_77889911', managerPhone: '09121112233',
+      managerPhone: '09121112233',
       logoUrl: 'https://picsum.photos/seed/m1/100/100',
       subdomain: 'megraz.tailorpanel.com',
       smsApi: '', smsSender: '', smsTemplate: '',
+      instagram: '', telegram: '', whatsapp: '',
       branches: [{
         id: 'b1', name: 'شعبه فرشته',
         address: 'تهران، خیابان فرشته، پلاک ۱۲', phone: '۰۲۱۲۲۳۳۴۴۵۵',
@@ -86,9 +87,11 @@ function AdminDashboard() {
   ]);
 
   const [formData, setFormData] = useState<TailoringUnit>({
-    id: '', name: '', managerName: '', uniqueId: '', apiId: '',
+    id: '', name: '', managerName: '',
     managerPhone: '', logoUrl: '', branches: [], subdomain: '',
-    smsApi: '', smsSender: '', smsTemplate: ''
+    smsApi: '', smsSender: '', smsTemplate: '',
+    instagram: '', telegram: '', whatsapp: '', eitaa: '', bale: '', rubika: '',
+    facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: ''
   });
 
   const [domainData, setDomainData] = useState({ unitId: '', domain: '', status: 'pending' as 'active' | 'pending' });
