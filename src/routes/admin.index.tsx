@@ -393,20 +393,36 @@ function AdminDashboard() {
                 </div>
                 <div className="space-y-5">
                   <div className="space-y-2"><Label>شماره مدیر</Label><Input value={formData.managerPhone} onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })} placeholder="0912XXXXXXX" type="tel" /></div>
-                  <div className="space-y-2">
-                    <Label>شناسه یکتا</Label>
-                    <div className="flex gap-2">
-                      <Input value={formData.uniqueId} readOnly className="bg-muted/30" />
-                      <Button variant="secondary" size="icon" onClick={generateId} type="button"><RefreshCcw className="w-4 h-4" /></Button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>API شناسه</Label>
-                    <div className="flex gap-2">
-                      <Input value={formData.apiId} onChange={(e) => setFormData({ ...formData, apiId: e.target.value })} placeholder="api_..." />
-                      <Button variant="secondary" size="icon" onClick={() => setFormData({ ...formData, apiId: generateApiId() })} type="button"><Key className="w-4 h-4" /></Button>
-                    </div>
-                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Social Media - Iranian */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-lg flex items-center gap-2"><MessageCircle className="w-5 h-5 text-primary" />شبکه‌های اجتماعی ایرانی</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2"><Label>ایتا</Label><Input value={formData.eitaa || ''} onChange={(e) => setFormData({ ...formData, eitaa: e.target.value })} placeholder="https://eitaa.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>بله</Label><Input value={formData.bale || ''} onChange={(e) => setFormData({ ...formData, bale: e.target.value })} placeholder="https://ble.ir/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>روبیکا</Label><Input value={formData.rubika || ''} onChange={(e) => setFormData({ ...formData, rubika: e.target.value })} placeholder="https://rubika.ir/..." dir="ltr" /></div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Social Media - International */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-secondary" />شبکه‌های اجتماعی بین‌المللی</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2"><Label>اینستاگرام</Label><Input value={formData.instagram || ''} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} placeholder="https://instagram.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>تلگرام</Label><Input value={formData.telegram || ''} onChange={(e) => setFormData({ ...formData, telegram: e.target.value })} placeholder="https://t.me/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>واتس‌اپ</Label><Input value={formData.whatsapp || ''} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} placeholder="https://wa.me/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>فیس‌بوک</Label><Input value={formData.facebook || ''} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} placeholder="https://facebook.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>توییتر / X</Label><Input value={formData.twitter || ''} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} placeholder="https://x.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>یوتیوب</Label><Input value={formData.youtube || ''} onChange={(e) => setFormData({ ...formData, youtube: e.target.value })} placeholder="https://youtube.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>لینکدین</Label><Input value={formData.linkedin || ''} onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })} placeholder="https://linkedin.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>تیک‌تاک</Label><Input value={formData.tiktok || ''} onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })} placeholder="https://tiktok.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>وب‌سایت</Label><Input value={formData.website || ''} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." dir="ltr" /></div>
                 </div>
               </div>
 
