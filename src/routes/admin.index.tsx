@@ -141,7 +141,7 @@ function AdminDashboard() {
   };
 
   const handleSave = () => {
-    if (!formData.name || !formData.uniqueId || !formData.managerPhone || !formData.managerName) return;
+    if (!formData.name || !formData.managerPhone || !formData.managerName) return;
     const subdomain = formData.subdomain || `${generateSlug(formData.name)}.tailorpanel.com`;
     const toSave = { ...formData, subdomain };
     if (isEditing) { setUnits(units.map(u => u.id === toSave.id ? toSave : u)); }
