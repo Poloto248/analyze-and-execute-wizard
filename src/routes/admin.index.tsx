@@ -362,7 +362,7 @@ function AdminDashboard() {
 
       {/* ═══════════ Add/Edit Shop Dialog ═══════════ */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
+        <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]" dir="rtl">
           <DialogHeader className="p-6 pb-2 shrink-0">
             <DialogTitle className="text-xl flex items-center gap-2">
               {isEditing ? <Edit2 className="w-5 h-5 text-secondary" /> : <Plus className="w-5 h-5 text-primary" />}
