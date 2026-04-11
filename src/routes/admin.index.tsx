@@ -164,7 +164,7 @@ function AdminDashboard() {
   };
 
   const resetForm = () => {
-    setFormData({ id: '', name: '', managerName: '', uniqueId: '', apiId: '', managerPhone: '', logoUrl: '', branches: [], subdomain: '', smsApi: '', smsSender: '', smsTemplate: '' });
+    setFormData({ id: '', name: '', managerName: '', managerPhone: '', logoUrl: '', branches: [], subdomain: '', smsApi: '', smsSender: '', smsTemplate: '', instagram: '', telegram: '', whatsapp: '', eitaa: '', bale: '', rubika: '', facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: '' });
     setIsEditing(false);
   };
 
