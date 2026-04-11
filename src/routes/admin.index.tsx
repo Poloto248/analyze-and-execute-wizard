@@ -364,13 +364,13 @@ function AdminDashboard() {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]" dir="rtl">
           <DialogHeader className="p-6 pb-2 shrink-0">
-            <DialogTitle className="text-xl flex items-center gap-2">
+            <DialogTitle className="text-xl flex items-center gap-2 text-right">
               {isEditing ? <Edit2 className="w-5 h-5 text-secondary" /> : <Plus className="w-5 h-5 text-primary" />}
               {isEditing ? 'ویرایش فروشگاه' : 'افزودن فروشگاه جدید'}
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="flex-1 px-6">
-            <div className="space-y-6 pb-6">
+          <div className="flex-1 overflow-y-auto px-6" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+            <div className="space-y-6 pb-6 text-right">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div className="space-y-5">
                   <div className="space-y-2">
