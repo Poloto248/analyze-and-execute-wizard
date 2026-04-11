@@ -463,7 +463,8 @@ function AdminDashboard() {
                     <Button variant="ghost" size="icon" className="absolute top-2 left-2" onClick={() => handleRemoveBranch(branch.id)}><X className="w-4 h-4 text-destructive" /></Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1"><Label className="text-xs">نام شعبه</Label><Input value={branch.name} onChange={(e) => handleBranchChange(branch.id, 'name', e.target.value)} /></div>
-                      <div className="space-y-1"><Label className="text-xs">تلفن</Label><Input value={branch.phone} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} /></div>
+                      <div className="space-y-1"><Label className="text-xs">تلفن ۱</Label><Input value={branch.phone} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} /></div>
+                      <div className="space-y-1"><Label className="text-xs">تلفن ۲</Label><Input value={branch.phone2 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone2', e.target.value)} placeholder="شماره دوم (اختیاری)" /></div>
                       <div className="space-y-1"><Label className="text-xs">واتس‌اپ</Label><Input value={branch.whatsapp} onChange={(e) => handleBranchChange(branch.id, 'whatsapp', e.target.value)} /></div>
                       <div className="space-y-1"><Label className="text-xs">آدرس</Label><Input value={branch.address} onChange={(e) => handleBranchChange(branch.id, 'address', e.target.value)} /></div>
                       <div className="space-y-1"><Label className="text-xs">لینک مسیریابی</Label><Input value={branch.googleMapsUrl || ''} onChange={(e) => handleBranchChange(branch.id, 'googleMapsUrl', e.target.value)} dir="ltr" /></div>
