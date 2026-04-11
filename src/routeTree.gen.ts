@@ -9,68 +9,132 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TailorRouteImport } from './routes/tailor'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TailorLoginRouteImport } from './routes/tailor.login'
 import { Route as CustomerLoginRouteImport } from './routes/customer.login'
+import { Route as CustomerDashboardRouteImport } from './routes/customer.dashboard'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
+const TailorRoute = TailorRouteImport.update({
+  id: '/tailor',
+  path: '/tailor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TailorLoginRoute = TailorLoginRouteImport.update({
-  id: '/tailor/login',
-  path: '/tailor/login',
-  getParentRoute: () => rootRouteImport,
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => TailorRoute,
 } as any)
 const CustomerLoginRoute = CustomerLoginRouteImport.update({
   id: '/customer/login',
   path: '/customer/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
+const CustomerDashboardRoute = CustomerDashboardRouteImport.update({
+  id: '/customer/dashboard',
+  path: '/customer/dashboard',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/tailor': typeof TailorRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
   '/customer/login': typeof CustomerLoginRoute
   '/tailor/login': typeof TailorLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/tailor': typeof TailorRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
   '/customer/login': typeof CustomerLoginRoute
   '/tailor/login': typeof TailorLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/tailor': typeof TailorRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
   '/customer/login': typeof CustomerLoginRoute
   '/tailor/login': typeof TailorLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/login' | '/customer/login' | '/tailor/login'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/tailor'
+    | '/admin/login'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/tailor/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/login' | '/customer/login' | '/tailor/login'
-  id: '__root__' | '/' | '/admin/login' | '/customer/login' | '/tailor/login'
+  to:
+    | '/'
+    | '/admin'
+    | '/tailor'
+    | '/admin/login'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/tailor/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/tailor'
+    | '/admin/login'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/tailor/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminLoginRoute: typeof AdminLoginRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  TailorRoute: typeof TailorRouteWithChildren
+  CustomerDashboardRoute: typeof CustomerDashboardRoute
   CustomerLoginRoute: typeof CustomerLoginRoute
-  TailorLoginRoute: typeof TailorLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tailor': {
+      id: '/tailor'
+      path: '/tailor'
+      fullPath: '/tailor'
+      preLoaderRoute: typeof TailorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -80,10 +144,10 @@ declare module '@tanstack/react-router' {
     }
     '/tailor/login': {
       id: '/tailor/login'
-      path: '/tailor/login'
+      path: '/login'
       fullPath: '/tailor/login'
       preLoaderRoute: typeof TailorLoginRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof TailorRoute
     }
     '/customer/login': {
       id: '/customer/login'
@@ -92,21 +156,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomerLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customer/dashboard': {
+      id: '/customer/dashboard'
+      path: '/customer/dashboard'
+      fullPath: '/customer/dashboard'
+      preLoaderRoute: typeof CustomerDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
-      path: '/admin/login'
+      path: '/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
   }
 }
 
+interface AdminRouteChildren {
+  AdminLoginRoute: typeof AdminLoginRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminLoginRoute: AdminLoginRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface TailorRouteChildren {
+  TailorLoginRoute: typeof TailorLoginRoute
+}
+
+const TailorRouteChildren: TailorRouteChildren = {
+  TailorLoginRoute: TailorLoginRoute,
+}
+
+const TailorRouteWithChildren =
+  TailorRoute._addFileChildren(TailorRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminLoginRoute: AdminLoginRoute,
+  AdminRoute: AdminRouteWithChildren,
+  TailorRoute: TailorRouteWithChildren,
+  CustomerDashboardRoute: CustomerDashboardRoute,
   CustomerLoginRoute: CustomerLoginRoute,
-  TailorLoginRoute: TailorLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
