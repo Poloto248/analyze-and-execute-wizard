@@ -235,7 +235,6 @@ function AdminDashboard() {
                     <TableHead className="min-w-[200px]">{t('unit_name')}</TableHead>
                     <TableHead className="hidden sm:table-cell">{t('manager_name')}</TableHead>
                     <TableHead className="hidden md:table-cell">شعب و دامنه</TableHead>
-                    <TableHead className="hidden xl:table-cell">{t('unit_id')}</TableHead>
                     <TableHead className="text-center">{t('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
