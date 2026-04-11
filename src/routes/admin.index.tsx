@@ -274,9 +274,6 @@ function AdminDashboard() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="hidden xl:table-cell">
-                          <span className="text-[10px] font-mono text-muted-foreground uppercase">{unit.uniqueId}</span>
-                        </TableCell>
                         <TableCell className="text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
