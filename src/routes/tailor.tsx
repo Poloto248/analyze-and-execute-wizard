@@ -9,17 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Instagram, Send, MapPin, Store, Phone, Share2, MessageCircle,
-  Upload, GitBranch, LogOut, Info, Navigation, Image as ImageIcon
+  Upload, LogOut, Info, Image as ImageIcon
 } from "lucide-react";
 
 export const Route = createFileRoute("/tailor")({
   component: TailorSettings,
 });
-
-interface Branch {
-  id: string; name: string; apiId: string; address: string;
-  phone: string; phone2?: string; phone3?: string; whatsapp: string; googleMapsUrl: string;
-}
 
 function TailorSettings() {
   const { t } = useTranslation();
@@ -36,9 +31,6 @@ function TailorSettings() {
     rubika: 'ettehad_baloch',
     address: 'زاهدان، خیابان اصلی، روبروی مرکز تجاری، پلاک ۴۵',
     about: 'ارائه خدمات تخصصی طراحی و دوخت لباس‌های سنتی و بلوچی با بالاترین استانداردهای کیفی.',
-    branches: [
-      { id: '1', name: 'شعبه مرکزی (زاهدان)', apiId: 'api_br_11', address: 'زاهدان، خیابان اصلی، روبروی مرکز تجاری، پلاک ۴۵', phone: '۰۵۴۳۳۲۲۱۱۰۰', phone2: '', phone3: '', whatsapp: '۰۹۱۵۰۰۰۰۰۰۰', googleMapsUrl: 'https://maps.app.goo.gl/example' }
-    ] as Branch[]
   });
 
   useEffect(() => {
@@ -53,10 +45,6 @@ function TailorSettings() {
       reader.onloadend = () => { setSettings(prev => ({ ...prev, logoUrl: reader.result as string })); };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleBranchChange = (id: string, field: keyof Branch, value: string) => {
-    setSettings(prev => ({ ...prev, branches: prev.branches.map(b => b.id === id ? { ...b, [field]: value } : b) }));
   };
 
   const handleSave = () => {
@@ -116,35 +104,12 @@ function TailorSettings() {
               </CardContent>
             </Card>
 
-            {/* Branches */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold flex items-center gap-2 px-2"><GitBranch className="w-6 h-6 text-secondary" />{t('branches')}</h3>
-              {settings.branches.map((branch) => (
-                <Card key={branch.id} className="rounded-[2rem] border-none shadow-lg overflow-hidden">
-                  <CardHeader className="bg-secondary/5 pb-4">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <div className="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center"><GitBranch className="w-4 h-4 text-secondary" /></div>
-                      <Input className="h-8 font-bold text-lg p-0 focus-visible:ring-0 bg-transparent border-none" placeholder="نام شعبه" value={branch.name} onChange={(e) => handleBranchChange(branch.id, 'name', e.target.value)} />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {(['phone', 'phone2', 'phone3'] as const).map((field, idx) => (
-                        <div key={field} className="space-y-1.5">
-                          <Label className="text-xs font-bold text-muted-foreground">تلفن {idx + 1}{idx === 0 ? ' (اصلی)' : ''}</Label>
-                          <div className="relative"><Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={(branch as any)[field] || ''} onChange={(e) => handleBranchChange(branch.id, field, e.target.value)} placeholder="۰۵۴..." className="h-10 pr-9" /></div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5"><Label className="text-xs font-bold text-muted-foreground">واتس‌اپ شعبه</Label><div className="relative"><MessageCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={branch.whatsapp} onChange={(e) => handleBranchChange(branch.id, 'whatsapp', e.target.value)} className="h-10 pr-9" /></div></div>
-                      <div className="space-y-1.5"><Label className="text-xs font-bold text-muted-foreground">لینک مسیریابی</Label><div className="relative"><Navigation className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={branch.googleMapsUrl} onChange={(e) => handleBranchChange(branch.id, 'googleMapsUrl', e.target.value)} dir="ltr" className="h-10 pr-9 text-xs font-mono" /></div></div>
-                    </div>
-                    <div className="space-y-1.5"><Label className="text-xs font-bold text-muted-foreground">آدرس شعبه</Label><div className="relative"><MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={branch.address} onChange={(e) => handleBranchChange(branch.id, 'address', e.target.value)} className="h-10 pr-9" /></div></div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {/* Notice: Branches managed by admin */}
+            <Card className="shadow-sm border-dashed border-2 border-muted-foreground/20 rounded-[2rem]">
+              <CardContent className="p-6 text-center text-muted-foreground">
+                <p className="text-sm">مدیریت شعبه‌ها فقط از طریق پنل ادمین کل امکان‌پذیر است.</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Social Links Sidebar */}
