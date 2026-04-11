@@ -364,13 +364,13 @@ function AdminDashboard() {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]" dir="rtl">
           <DialogHeader className="p-6 pb-2 shrink-0">
-            <DialogTitle className="text-xl flex items-center gap-2">
+            <DialogTitle className="text-xl flex items-center gap-2 text-right">
               {isEditing ? <Edit2 className="w-5 h-5 text-secondary" /> : <Plus className="w-5 h-5 text-primary" />}
               {isEditing ? 'ویرایش فروشگاه' : 'افزودن فروشگاه جدید'}
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="flex-1 px-6">
-            <div className="space-y-6 pb-6">
+          <div className="flex-1 overflow-y-auto px-6" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+            <div className="space-y-6 pb-6 text-right">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div className="space-y-5">
                   <div className="space-y-2">
@@ -463,7 +463,8 @@ function AdminDashboard() {
                     <Button variant="ghost" size="icon" className="absolute top-2 left-2" onClick={() => handleRemoveBranch(branch.id)}><X className="w-4 h-4 text-destructive" /></Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1"><Label className="text-xs">نام شعبه</Label><Input value={branch.name} onChange={(e) => handleBranchChange(branch.id, 'name', e.target.value)} /></div>
-                      <div className="space-y-1"><Label className="text-xs">تلفن</Label><Input value={branch.phone} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} /></div>
+                      <div className="space-y-1"><Label className="text-xs">تلفن ۱</Label><Input value={branch.phone} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} /></div>
+                      <div className="space-y-1"><Label className="text-xs">تلفن ۲</Label><Input value={branch.phone2 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone2', e.target.value)} placeholder="شماره دوم (اختیاری)" /></div>
                       <div className="space-y-1"><Label className="text-xs">واتس‌اپ</Label><Input value={branch.whatsapp} onChange={(e) => handleBranchChange(branch.id, 'whatsapp', e.target.value)} /></div>
                       <div className="space-y-1"><Label className="text-xs">آدرس</Label><Input value={branch.address} onChange={(e) => handleBranchChange(branch.id, 'address', e.target.value)} /></div>
                       <div className="space-y-1"><Label className="text-xs">لینک مسیریابی</Label><Input value={branch.googleMapsUrl || ''} onChange={(e) => handleBranchChange(branch.id, 'googleMapsUrl', e.target.value)} dir="ltr" /></div>
@@ -476,7 +477,7 @@ function AdminDashboard() {
                 ))}
               </div>
             </div>
-          </ScrollArea>
+          </div>
           <DialogFooter className="p-6 pt-2 shrink-0 border-t">
             <Button variant="outline" onClick={() => setIsFormOpen(false)}>انصراف</Button>
             <Button onClick={handleSave}>ذخیره</Button>
