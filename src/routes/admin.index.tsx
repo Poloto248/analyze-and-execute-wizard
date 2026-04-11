@@ -476,7 +476,7 @@ function AdminDashboard() {
                 ))}
               </div>
             </div>
-          </ScrollArea>
+          </div>
           <DialogFooter className="p-6 pt-2 shrink-0 border-t">
             <Button variant="outline" onClick={() => setIsFormOpen(false)}>انصراف</Button>
             <Button onClick={handleSave}>ذخیره</Button>
