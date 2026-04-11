@@ -114,13 +114,6 @@ function AdminDashboard() {
 
   const handleLogout = () => { localStorage.removeItem('admin_authenticated'); navigate({ to: '/admin/login' }); };
 
-  const generateId = () => {
-    const random = Math.floor(1000 + Math.random() * 9000);
-    setFormData(prev => ({ ...prev, uniqueId: `UNIT-${new Date().getFullYear()}-${random}` }));
-  };
-
-  const generateApiId = () => `api_${Math.random().toString(36).substring(2, 10)}`;
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
