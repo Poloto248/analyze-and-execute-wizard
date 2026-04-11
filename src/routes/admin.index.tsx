@@ -40,10 +40,13 @@ interface Branch {
 }
 
 interface TailoringUnit {
-  id: string; name: string; managerName: string; uniqueId: string; apiId: string;
+  id: string; name: string; managerName: string;
   managerPhone: string; logoUrl?: string; branches: Branch[]; domain?: string;
   isDomainActive?: boolean; subdomain: string;
   smsApi?: string; smsSender?: string; smsTemplate?: string;
+  instagram?: string; telegram?: string; whatsapp?: string; eitaa?: string;
+  bale?: string; rubika?: string; facebook?: string; twitter?: string;
+  youtube?: string; linkedin?: string; tiktok?: string; website?: string;
 }
 
 interface AdminUser {
@@ -68,10 +71,11 @@ function AdminDashboard() {
   const [units, setUnits] = useState<TailoringUnit[]>([
     {
       id: '1', name: 'مزون مرکزی مگراز', managerName: 'علی مگرازی',
-      uniqueId: 'MGZ-MAIN-01', apiId: 'api_77889911', managerPhone: '09121112233',
+      managerPhone: '09121112233',
       logoUrl: 'https://picsum.photos/seed/m1/100/100',
       subdomain: 'megraz.tailorpanel.com',
       smsApi: '', smsSender: '', smsTemplate: '',
+      instagram: '', telegram: '', whatsapp: '',
       branches: [{
         id: 'b1', name: 'شعبه فرشته',
         address: 'تهران، خیابان فرشته، پلاک ۱۲', phone: '۰۲۱۲۲۳۳۴۴۵۵',
@@ -83,9 +87,11 @@ function AdminDashboard() {
   ]);
 
   const [formData, setFormData] = useState<TailoringUnit>({
-    id: '', name: '', managerName: '', uniqueId: '', apiId: '',
+    id: '', name: '', managerName: '',
     managerPhone: '', logoUrl: '', branches: [], subdomain: '',
-    smsApi: '', smsSender: '', smsTemplate: ''
+    smsApi: '', smsSender: '', smsTemplate: '',
+    instagram: '', telegram: '', whatsapp: '', eitaa: '', bale: '', rubika: '',
+    facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: ''
   });
 
   const [domainData, setDomainData] = useState({ unitId: '', domain: '', status: 'pending' as 'active' | 'pending' });
@@ -107,13 +113,6 @@ function AdminDashboard() {
   }, [navigate]);
 
   const handleLogout = () => { localStorage.removeItem('admin_authenticated'); navigate({ to: '/admin/login' }); };
-
-  const generateId = () => {
-    const random = Math.floor(1000 + Math.random() * 9000);
-    setFormData(prev => ({ ...prev, uniqueId: `UNIT-${new Date().getFullYear()}-${random}` }));
-  };
-
-  const generateApiId = () => `api_${Math.random().toString(36).substring(2, 10)}`;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -142,7 +141,7 @@ function AdminDashboard() {
   };
 
   const handleSave = () => {
-    if (!formData.name || !formData.uniqueId || !formData.managerPhone || !formData.managerName) return;
+    if (!formData.name || !formData.managerPhone || !formData.managerName) return;
     const subdomain = formData.subdomain || `${generateSlug(formData.name)}.tailorpanel.com`;
     const toSave = { ...formData, subdomain };
     if (isEditing) { setUnits(units.map(u => u.id === toSave.id ? toSave : u)); }
@@ -165,7 +164,7 @@ function AdminDashboard() {
   };
 
   const resetForm = () => {
-    setFormData({ id: '', name: '', managerName: '', uniqueId: '', apiId: '', managerPhone: '', logoUrl: '', branches: [], subdomain: '', smsApi: '', smsSender: '', smsTemplate: '' });
+    setFormData({ id: '', name: '', managerName: '', managerPhone: '', logoUrl: '', branches: [], subdomain: '', smsApi: '', smsSender: '', smsTemplate: '', instagram: '', telegram: '', whatsapp: '', eitaa: '', bale: '', rubika: '', facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: '' });
     setIsEditing(false);
   };
 
@@ -236,14 +235,13 @@ function AdminDashboard() {
                     <TableHead className="min-w-[200px]">{t('unit_name')}</TableHead>
                     <TableHead className="hidden sm:table-cell">{t('manager_name')}</TableHead>
                     <TableHead className="hidden md:table-cell">شعب و دامنه</TableHead>
-                    <TableHead className="hidden xl:table-cell">{t('unit_id')}</TableHead>
                     <TableHead className="text-center">{t('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {units.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                      <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
                         هیچ مجموعه‌ای یافت نشد.
                       </TableCell>
                     </TableRow>
@@ -274,9 +272,6 @@ function AdminDashboard() {
                               </Badge>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell className="hidden xl:table-cell">
-                          <span className="text-[10px] font-mono text-muted-foreground uppercase">{unit.uniqueId}</span>
                         </TableCell>
                         <TableCell className="text-center">
                           <DropdownMenu>
@@ -367,7 +362,7 @@ function AdminDashboard() {
 
       {/* ═══════════ Add/Edit Shop Dialog ═══════════ */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
+        <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]" dir="rtl">
           <DialogHeader className="p-6 pb-2 shrink-0">
             <DialogTitle className="text-xl flex items-center gap-2">
               {isEditing ? <Edit2 className="w-5 h-5 text-secondary" /> : <Plus className="w-5 h-5 text-primary" />}
@@ -398,20 +393,36 @@ function AdminDashboard() {
                 </div>
                 <div className="space-y-5">
                   <div className="space-y-2"><Label>شماره مدیر</Label><Input value={formData.managerPhone} onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })} placeholder="0912XXXXXXX" type="tel" /></div>
-                  <div className="space-y-2">
-                    <Label>شناسه یکتا</Label>
-                    <div className="flex gap-2">
-                      <Input value={formData.uniqueId} readOnly className="bg-muted/30" />
-                      <Button variant="secondary" size="icon" onClick={generateId} type="button"><RefreshCcw className="w-4 h-4" /></Button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>API شناسه</Label>
-                    <div className="flex gap-2">
-                      <Input value={formData.apiId} onChange={(e) => setFormData({ ...formData, apiId: e.target.value })} placeholder="api_..." />
-                      <Button variant="secondary" size="icon" onClick={() => setFormData({ ...formData, apiId: generateApiId() })} type="button"><Key className="w-4 h-4" /></Button>
-                    </div>
-                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Social Media - Iranian */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-lg flex items-center gap-2"><MessageCircle className="w-5 h-5 text-primary" />شبکه‌های اجتماعی ایرانی</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2"><Label>ایتا</Label><Input value={formData.eitaa || ''} onChange={(e) => setFormData({ ...formData, eitaa: e.target.value })} placeholder="https://eitaa.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>بله</Label><Input value={formData.bale || ''} onChange={(e) => setFormData({ ...formData, bale: e.target.value })} placeholder="https://ble.ir/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>روبیکا</Label><Input value={formData.rubika || ''} onChange={(e) => setFormData({ ...formData, rubika: e.target.value })} placeholder="https://rubika.ir/..." dir="ltr" /></div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Social Media - International */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-secondary" />شبکه‌های اجتماعی بین‌المللی</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2"><Label>اینستاگرام</Label><Input value={formData.instagram || ''} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} placeholder="https://instagram.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>تلگرام</Label><Input value={formData.telegram || ''} onChange={(e) => setFormData({ ...formData, telegram: e.target.value })} placeholder="https://t.me/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>واتس‌اپ</Label><Input value={formData.whatsapp || ''} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} placeholder="https://wa.me/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>فیس‌بوک</Label><Input value={formData.facebook || ''} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} placeholder="https://facebook.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>توییتر / X</Label><Input value={formData.twitter || ''} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} placeholder="https://x.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>یوتیوب</Label><Input value={formData.youtube || ''} onChange={(e) => setFormData({ ...formData, youtube: e.target.value })} placeholder="https://youtube.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>لینکدین</Label><Input value={formData.linkedin || ''} onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })} placeholder="https://linkedin.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>تیک‌تاک</Label><Input value={formData.tiktok || ''} onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })} placeholder="https://tiktok.com/..." dir="ltr" /></div>
+                  <div className="space-y-2"><Label>وب‌سایت</Label><Input value={formData.website || ''} onChange={(e) => setFormData({ ...formData, website: e.target.value })} placeholder="https://..." dir="ltr" /></div>
                 </div>
               </div>
 
