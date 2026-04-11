@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TailorLoginRouteImport } from './routes/tailor.login'
+import { Route as CustomerLoginRouteImport } from './routes/customer.login'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TailorLoginRoute = TailorLoginRouteImport.update({
+  id: '/tailor/login',
+  path: '/tailor/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerLoginRoute = CustomerLoginRouteImport.update({
+  id: '/customer/login',
+  path: '/customer/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/tailor/login': typeof TailorLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/tailor/login': typeof TailorLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/tailor/login': typeof TailorLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/admin/login' | '/customer/login' | '/tailor/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/admin/login' | '/customer/login' | '/tailor/login'
+  id: '__root__' | '/' | '/admin/login' | '/customer/login' | '/tailor/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  CustomerLoginRoute: typeof CustomerLoginRoute
+  TailorLoginRoute: typeof TailorLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tailor/login': {
+      id: '/tailor/login'
+      path: '/tailor/login'
+      fullPath: '/tailor/login'
+      preLoaderRoute: typeof TailorLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/login': {
+      id: '/customer/login'
+      path: '/customer/login'
+      fullPath: '/customer/login'
+      preLoaderRoute: typeof CustomerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  CustomerLoginRoute: CustomerLoginRoute,
+  TailorLoginRoute: TailorLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
