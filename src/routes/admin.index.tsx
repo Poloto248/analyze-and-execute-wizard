@@ -40,10 +40,13 @@ interface Branch {
 }
 
 interface TailoringUnit {
-  id: string; name: string; managerName: string; uniqueId: string; apiId: string;
+  id: string; name: string; managerName: string;
   managerPhone: string; logoUrl?: string; branches: Branch[]; domain?: string;
   isDomainActive?: boolean; subdomain: string;
   smsApi?: string; smsSender?: string; smsTemplate?: string;
+  instagram?: string; telegram?: string; whatsapp?: string; eitaa?: string;
+  bale?: string; rubika?: string; facebook?: string; twitter?: string;
+  youtube?: string; linkedin?: string; tiktok?: string; website?: string;
 }
 
 interface AdminUser {
