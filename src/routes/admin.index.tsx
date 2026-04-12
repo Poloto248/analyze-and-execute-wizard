@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "@/components/i18n/TranslationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -23,11 +22,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Plus, RefreshCcw, Trash2, Key, User, Edit2, Search, MoreVertical, Store,
-  Upload, GitBranch, X, MapPin, Phone, MessageCircle, Globe, CheckCircle2,
+  Plus, Trash2, Key, User, Edit2, Search, MoreVertical, Store,
+  Upload, GitBranch, X, Phone, MessageCircle, Globe, CheckCircle2,
   AlertCircle, LogOut, Navigation, Image as ImageIcon, Shield, ShieldCheck,
   MessageSquare, Hash, FileText
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
@@ -39,19 +39,21 @@ interface Branch {
   googleMapsUrl?: string; trackingApiUrl?: string;
 }
 
-interface TailoringUnit {
-  id: string; name: string; managerName: string;
-  managerPhone: string; logoUrl?: string; branches: Branch[]; domain?: string;
-  isDomainActive?: boolean; subdomain: string;
-  smsApi?: string; smsSender?: string; smsTemplate?: string;
+interface Shop {
+  id: string; name: string; manager_name: string;
+  manager_phone: string; logo_url?: string; subdomain: string;
+  domain?: string; is_domain_active?: boolean;
+  sms_api?: string; sms_sender?: string; sms_template?: string;
   instagram?: string; telegram?: string; whatsapp?: string; eitaa?: string;
   bale?: string; rubika?: string; facebook?: string; twitter?: string;
   youtube?: string; linkedin?: string; tiktok?: string; website?: string;
+  about?: string; address?: string;
+  branches: Branch[];
 }
 
 interface AdminUser {
   id: string; name: string; phone: string; role: 'super_admin' | 'admin';
-  createdAt: string;
+  created_at: string;
 }
 
 function generateSlug(name: string) {
@@ -67,50 +69,67 @@ function AdminDashboard() {
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const [units, setUnits] = useState<TailoringUnit[]>([
-    {
-      id: '1', name: 'مزون مرکزی مگراز', managerName: 'علی مگرازی',
-      managerPhone: '09121112233',
-      logoUrl: 'https://picsum.photos/seed/m1/100/100',
-      subdomain: 'megraz.tailorpanel.com',
-      smsApi: '', smsSender: '', smsTemplate: '',
-      instagram: '', telegram: '', whatsapp: '',
-      branches: [{
-        id: 'b1', name: 'شعبه فرشته',
-        address: 'تهران، خیابان فرشته، پلاک ۱۲', phone: '۰۲۱۲۲۳۳۴۴۵۵',
-        whatsapp: '۰۹۱۲۰۰۰۰۰۰۰', googleMapsUrl: 'https://maps.app.goo.gl/example',
-        trackingApiUrl: ''
-      }],
-      domain: 'megraz.com', isDomainActive: true
-    }
-  ]);
-
-  const [formData, setFormData] = useState<TailoringUnit>({
-    id: '', name: '', managerName: '',
-    managerPhone: '', logoUrl: '', branches: [], subdomain: '',
-    smsApi: '', smsSender: '', smsTemplate: '',
+  const [shops, setShops] = useState<Shop[]>([]);
+  const emptyForm: Shop = {
+    id: '', name: '', manager_name: '', manager_phone: '', logo_url: '', subdomain: '',
+    sms_api: '', sms_sender: '', sms_template: '',
     instagram: '', telegram: '', whatsapp: '', eitaa: '', bale: '', rubika: '',
-    facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: ''
-  });
-
+    facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: '',
+    about: '', address: '', branches: []
+  };
+  const [formData, setFormData] = useState<Shop>({ ...emptyForm });
   const [domainData, setDomainData] = useState({ unitId: '', domain: '', status: 'pending' as 'active' | 'pending' });
   const [isCheckingDns, setIsCheckingDns] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const [admins, setAdmins] = useState<AdminUser[]>([
-    { id: '1', name: 'مدیر اصلی سیستم', phone: '09120000000', role: 'super_admin', createdAt: '1404/01/01' }
-  ]);
-  const [adminFormData, setAdminFormData] = useState<AdminUser>({
-    id: '', name: '', phone: '', role: 'admin', createdAt: ''
-  });
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [adminFormData, setAdminFormData] = useState<AdminUser>({ id: '', name: '', phone: '', role: 'admin', created_at: '' });
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
+
+  const fetchShops = useCallback(async () => {
+    const { data: shopsData } = await supabase.from('shops').select('*').order('created_at', { ascending: false });
+    if (!shopsData) return;
+    const { data: branchesData } = await supabase.from('branches').select('*');
+    const result: Shop[] = shopsData.map((s: any) => ({
+      id: s.id, name: s.name, manager_name: s.manager_name, manager_phone: s.manager_phone,
+      logo_url: s.logo_url, subdomain: s.subdomain, domain: s.domain, is_domain_active: s.is_domain_active,
+      sms_api: s.sms_api, sms_sender: s.sms_sender, sms_template: s.sms_template,
+      instagram: s.instagram, telegram: s.telegram, whatsapp: s.whatsapp,
+      eitaa: s.eitaa, bale: s.bale, rubika: s.rubika,
+      facebook: s.facebook, twitter: s.twitter, youtube: s.youtube,
+      linkedin: s.linkedin, tiktok: s.tiktok, website: s.website,
+      about: s.about, address: s.address,
+      branches: (branchesData || []).filter((b: any) => b.shop_id === s.id).map((b: any) => ({
+        id: b.id, name: b.name, address: b.address || '', phone: b.phone || '',
+        phone2: b.phone2, phone3: b.phone3, whatsapp: b.whatsapp || '',
+        googleMapsUrl: b.google_maps_url, trackingApiUrl: b.tracking_api_url,
+      }))
+    }));
+    setShops(result);
+  }, []);
+
+  const fetchAdmins = useCallback(async () => {
+    const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false });
+    if (data) {
+      setAdmins(data.map((a: any) => ({
+        id: a.id, name: a.name, phone: a.phone, role: a.role,
+        created_at: new Date(a.created_at).toLocaleDateString('fa-IR'),
+      })));
+    }
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
     const auth = localStorage.getItem('admin_authenticated');
-    if (auth === 'true') { setIsAuthenticated(true); } else { navigate({ to: '/admin/login' }); }
-  }, [navigate]);
+    if (auth === 'true') {
+      setIsAuthenticated(true);
+      Promise.all([fetchShops(), fetchAdmins()]).then(() => setLoading(false));
+    } else {
+      navigate({ to: '/admin/login' });
+    }
+  }, [navigate, fetchShops, fetchAdmins]);
 
   const handleLogout = () => { localStorage.removeItem('admin_authenticated'); navigate({ to: '/admin/login' }); };
 
@@ -118,39 +137,60 @@ function AdminDashboard() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => { setFormData(prev => ({ ...prev, logoUrl: reader.result as string })); };
+      reader.onloadend = () => { setFormData(prev => ({ ...prev, logo_url: reader.result as string })); };
       reader.readAsDataURL(file);
     }
   };
 
   const handleAddBranch = () => {
-    const newBranch: Branch = {
-      id: Date.now().toString(), name: '', address: '', phone: '', whatsapp: '', googleMapsUrl: '', trackingApiUrl: ''
-    };
+    const newBranch: Branch = { id: crypto.randomUUID(), name: '', address: '', phone: '', whatsapp: '', googleMapsUrl: '', trackingApiUrl: '' };
     setFormData(prev => ({ ...prev, branches: [...prev.branches, newBranch] }));
   };
-
-  const handleRemoveBranch = (id: string) => {
-    setFormData(prev => ({ ...prev, branches: prev.branches.filter(b => b.id !== id) }));
-  };
-
+  const handleRemoveBranch = (id: string) => { setFormData(prev => ({ ...prev, branches: prev.branches.filter(b => b.id !== id) })); };
   const handleBranchChange = (id: string, field: keyof Branch, value: string) => {
-    setFormData(prev => ({
-      ...prev, branches: prev.branches.map(b => b.id === id ? { ...b, [field]: value } : b)
-    }));
+    setFormData(prev => ({ ...prev, branches: prev.branches.map(b => b.id === id ? { ...b, [field]: value } : b) }));
   };
 
-  const handleSave = () => {
-    if (!formData.name || !formData.managerPhone || !formData.managerName) return;
+  const handleSave = async () => {
+    if (!formData.name || !formData.manager_phone || !formData.manager_name) return;
     const subdomain = formData.subdomain || `${generateSlug(formData.name)}.tailorpanel.com`;
-    const toSave = { ...formData, subdomain };
-    if (isEditing) { setUnits(units.map(u => u.id === toSave.id ? toSave : u)); }
-    else { setUnits([{ ...toSave, id: Date.now().toString() }, ...units]); }
+    const shopPayload = {
+      name: formData.name, manager_name: formData.manager_name, manager_phone: formData.manager_phone,
+      logo_url: formData.logo_url || null, subdomain,
+      domain: formData.domain || null, is_domain_active: formData.is_domain_active || false,
+      sms_api: formData.sms_api || null, sms_sender: formData.sms_sender || null, sms_template: formData.sms_template || null,
+      instagram: formData.instagram || null, telegram: formData.telegram || null, whatsapp: formData.whatsapp || null,
+      eitaa: formData.eitaa || null, bale: formData.bale || null, rubika: formData.rubika || null,
+      facebook: formData.facebook || null, twitter: formData.twitter || null, youtube: formData.youtube || null,
+      linkedin: formData.linkedin || null, tiktok: formData.tiktok || null, website: formData.website || null,
+      about: formData.about || null, address: formData.address || null,
+    };
+
+    let shopId = formData.id;
+    if (isEditing) {
+      await supabase.from('shops').update(shopPayload).eq('id', shopId);
+      // Delete old branches, re-insert
+      await supabase.from('branches').delete().eq('shop_id', shopId);
+    } else {
+      const { data } = await supabase.from('shops').insert(shopPayload).select('id').single();
+      if (data) shopId = data.id;
+    }
+    // Insert branches
+    if (formData.branches.length > 0) {
+      const branchRows = formData.branches.map(b => ({
+        shop_id: shopId, name: b.name, address: b.address || null, phone: b.phone || null,
+        phone2: b.phone2 || null, phone3: b.phone3 || null, whatsapp: b.whatsapp || null,
+        google_maps_url: b.googleMapsUrl || null, tracking_api_url: b.trackingApiUrl || null,
+      }));
+      await supabase.from('branches').insert(branchRows);
+    }
+    await fetchShops();
     resetForm(); setIsFormOpen(false);
   };
 
-  const handleSaveDomain = () => {
-    setUnits(units.map(u => u.id === domainData.unitId ? { ...u, domain: domainData.domain, isDomainActive: domainData.status === 'active' } : u));
+  const handleSaveDomain = async () => {
+    await supabase.from('shops').update({ domain: domainData.domain, is_domain_active: domainData.status === 'active' }).eq('id', domainData.unitId);
+    await fetchShops();
     setIsDomainDialogOpen(false);
   };
 
@@ -158,38 +198,32 @@ function AdminDashboard() {
     setIsCheckingDns(true);
     setTimeout(() => {
       setIsCheckingDns(false);
-      const randomSuccess = Math.random() > 0.5;
-      setDomainData(prev => ({ ...prev, status: randomSuccess ? 'active' : 'pending' }));
+      setDomainData(prev => ({ ...prev, status: Math.random() > 0.5 ? 'active' : 'pending' }));
     }, 2000);
   };
 
-  const resetForm = () => {
-    setFormData({ id: '', name: '', managerName: '', managerPhone: '', logoUrl: '', branches: [], subdomain: '', smsApi: '', smsSender: '', smsTemplate: '', instagram: '', telegram: '', whatsapp: '', eitaa: '', bale: '', rubika: '', facebook: '', twitter: '', youtube: '', linkedin: '', tiktok: '', website: '' });
-    setIsEditing(false);
-  };
+  const resetForm = () => { setFormData({ ...emptyForm }); setIsEditing(false); };
 
-  const startEdit = (unit: TailoringUnit) => { setFormData(JSON.parse(JSON.stringify(unit))); setIsEditing(true); setIsFormOpen(true); };
-  const startSetDomain = (unit: TailoringUnit) => { setDomainData({ unitId: unit.id, domain: unit.domain || '', status: unit.isDomainActive ? 'active' : 'pending' }); setIsDomainDialogOpen(true); };
-  const deleteUnit = (id: string) => { setUnits(units.filter(u => u.id !== id)); };
+  const startEdit = (shop: Shop) => { setFormData(JSON.parse(JSON.stringify(shop))); setIsEditing(true); setIsFormOpen(true); };
+  const startSetDomain = (shop: Shop) => { setDomainData({ unitId: shop.id, domain: shop.domain || '', status: shop.is_domain_active ? 'active' : 'pending' }); setIsDomainDialogOpen(true); };
+  const deleteUnit = async (id: string) => { await supabase.from('shops').delete().eq('id', id); await fetchShops(); };
 
-  const handleSaveAdmin = () => {
+  const handleSaveAdmin = async () => {
     if (!adminFormData.name || !adminFormData.phone) return;
     if (isEditingAdmin) {
-      setAdmins(admins.map(a => a.id === adminFormData.id ? adminFormData : a));
+      await supabase.from('admin_users').update({ name: adminFormData.name, phone: adminFormData.phone, role: adminFormData.role }).eq('id', adminFormData.id);
     } else {
-      setAdmins([{ ...adminFormData, id: Date.now().toString(), createdAt: new Date().toLocaleDateString('fa-IR') }, ...admins]);
+      await supabase.from('admin_users').insert({ name: adminFormData.name, phone: adminFormData.phone, role: adminFormData.role });
     }
-    setAdminFormData({ id: '', name: '', phone: '', role: 'admin', createdAt: '' });
-    setIsEditingAdmin(false);
-    setIsAdminDialogOpen(false);
+    await fetchAdmins();
+    setAdminFormData({ id: '', name: '', phone: '', role: 'admin', created_at: '' });
+    setIsEditingAdmin(false); setIsAdminDialogOpen(false);
   };
-
-  const startEditAdmin = (admin: AdminUser) => {
-    setAdminFormData({ ...admin }); setIsEditingAdmin(true); setIsAdminDialogOpen(true);
-  };
-  const deleteAdmin = (id: string) => { setAdmins(admins.filter(a => a.id !== id)); };
+  const startEditAdmin = (admin: AdminUser) => { setAdminFormData({ ...admin }); setIsEditingAdmin(true); setIsAdminDialogOpen(true); };
+  const deleteAdmin = async (id: string) => { await supabase.from('admin_users').delete().eq('id', id); await fetchAdmins(); };
 
   if (!isMounted || !isAuthenticated) return null;
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><p className="text-muted-foreground">در حال بارگذاری...</p></div>;
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 md:space-y-8">
@@ -198,9 +232,7 @@ function AdminDashboard() {
           <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('admin_dashboard')}</h1>
           <p className="text-sm text-muted-foreground mt-1">پنل مدیریت سراسری (سوپر ادمین)</p>
         </div>
-        <Button variant="outline" onClick={handleLogout}>
-          <LogOut className="ml-2 w-4 h-4" />خروج
-        </Button>
+        <Button variant="outline" onClick={handleLogout}><LogOut className="ml-2 w-4 h-4" />خروج</Button>
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -209,24 +241,16 @@ function AdminDashboard() {
           <TabsTrigger value="admins" className="gap-2"><Shield className="w-4 h-4" />مدیریت ادمین‌ها</TabsTrigger>
         </TabsList>
 
-        {/* ═══════════════════ TAB: SHOPS ═══════════════════ */}
         <TabsContent value="shops" className="space-y-4 mt-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
               {t('tailoring_units')}
-              <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{units.length}</span>
+              <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{shops.length}</span>
             </h2>
             <div className="flex gap-2 w-full md:w-auto">
-              <div className="relative flex-1 md:w-64">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="جستجو در مجموعه‌ها..." className="pr-10" />
-              </div>
-              <Button onClick={() => { resetForm(); setIsFormOpen(true); }}>
-                <Plus className="ml-2 w-4 h-4" />{t('add_new_unit')}
-              </Button>
+              <Button onClick={() => { resetForm(); setIsFormOpen(true); }}><Plus className="ml-2 w-4 h-4" />{t('add_new_unit')}</Button>
             </div>
           </div>
-
           <Card className="shadow-sm border-none overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
@@ -239,72 +263,64 @@ function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {units.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
-                        هیچ مجموعه‌ای یافت نشد.
+                  {shops.length === 0 ? (
+                    <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
+                  ) : shops.map((shop) => (
+                    <TableRow key={shop.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="w-10 h-10 rounded-xl border-2 border-primary/10">
+                            <AvatarImage src={shop.logo_url} alt={shop.name} />
+                            <AvatarFallback className="bg-primary/5"><Store className="w-5 h-5 text-primary" /></AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-sm md:text-base">{shop.name}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono" dir="ltr">{shop.subdomain}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <div className="flex items-center gap-2 text-sm"><User className="w-3 h-3 text-muted-foreground" />{shop.manager_name}</div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <div className="flex flex-col gap-1.5">
+                          <Badge variant="secondary" className="gap-1.5 px-3 w-fit"><GitBranch className="w-3.5 h-3.5" />{shop.branches.length} شعبه</Badge>
+                          {shop.domain && (
+                            <Badge variant={shop.is_domain_active ? "default" : "outline"} className={`gap-1.5 px-3 w-fit ${shop.is_domain_active ? 'bg-green-100 text-green-800' : 'text-orange-600 border-orange-200'}`}>
+                              <Globe className="w-3.5 h-3.5" />{shop.domain}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => startEdit(shop)}><Edit2 className="w-4 h-4 ml-2" />{t('edit')}</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => startSetDomain(shop)}><Globe className="w-4 h-4 ml-2 text-blue-500" />{t('set_domain')}</DropdownMenuItem>
+                            <Separator className="my-1" />
+                            <DropdownMenuItem className="text-destructive" onClick={() => deleteUnit(shop.id)}><Trash2 className="w-4 h-4 ml-2" />{t('delete')}</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    units.map((unit) => (
-                      <TableRow key={unit.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="w-10 h-10 rounded-xl border-2 border-primary/10">
-                              <AvatarImage src={unit.logoUrl} alt={unit.name} />
-                              <AvatarFallback className="bg-primary/5"><Store className="w-5 h-5 text-primary" /></AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col">
-                              <span className="font-bold text-sm md:text-base">{unit.name}</span>
-                              <span className="text-[10px] text-muted-foreground font-mono" dir="ltr">{unit.subdomain}</span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          <div className="flex items-center gap-2 text-sm"><User className="w-3 h-3 text-muted-foreground" />{unit.managerName}</div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="flex flex-col gap-1.5">
-                            <Badge variant="secondary" className="gap-1.5 px-3 w-fit"><GitBranch className="w-3.5 h-3.5" />{unit.branches.length} شعبه</Badge>
-                            {unit.domain && (
-                              <Badge variant={unit.isDomainActive ? "default" : "outline"} className={`gap-1.5 px-3 w-fit ${unit.isDomainActive ? 'bg-green-100 text-green-800' : 'text-orange-600 border-orange-200'}`}>
-                                <Globe className="w-3.5 h-3.5" />{unit.domain}
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => startEdit(unit)}><Edit2 className="w-4 h-4 ml-2" />{t('edit')}</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => startSetDomain(unit)}><Globe className="w-4 h-4 ml-2 text-blue-500" />{t('set_domain')}</DropdownMenuItem>
-                              <Separator className="my-1" />
-                              <DropdownMenuItem className="text-destructive" onClick={() => deleteUnit(unit.id)}><Trash2 className="w-4 h-4 ml-2" />{t('delete')}</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
           </Card>
         </TabsContent>
 
-        {/* ═══════════════════ TAB: ADMINS ═══════════════════ */}
         <TabsContent value="admins" className="space-y-4 mt-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
               مدیریت ادمین‌ها
               <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{admins.length}</span>
             </h2>
-            <Button onClick={() => { setAdminFormData({ id: '', name: '', phone: '', role: 'admin', createdAt: '' }); setIsEditingAdmin(false); setIsAdminDialogOpen(true); }}>
+            <Button onClick={() => { setAdminFormData({ id: '', name: '', phone: '', role: 'admin', created_at: '' }); setIsEditingAdmin(false); setIsAdminDialogOpen(true); }}>
               <Plus className="ml-2 w-4 h-4" />افزودن ادمین جدید
             </Button>
           </div>
-
           <Card className="shadow-sm border-none overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
@@ -319,40 +335,36 @@ function AdminDashboard() {
                 </TableHeader>
                 <TableBody>
                   {admins.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">هیچ ادمینی یافت نشد.</TableCell>
-                    </TableRow>
-                  ) : (
-                    admins.map((admin) => (
-                      <TableRow key={admin.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${admin.role === 'super_admin' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
-                              {admin.role === 'super_admin' ? <ShieldCheck className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
-                            </div>
-                            <span className="font-bold">{admin.name}</span>
+                    <TableRow><TableCell colSpan={5} className="h-32 text-center text-muted-foreground">هیچ ادمینی یافت نشد.</TableCell></TableRow>
+                  ) : admins.map((admin) => (
+                    <TableRow key={admin.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${admin.role === 'super_admin' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
+                            {admin.role === 'super_admin' ? <ShieldCheck className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
                           </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm" dir="ltr">{admin.phone}</TableCell>
-                        <TableCell>
-                          <Badge variant={admin.role === 'super_admin' ? 'default' : 'secondary'} className={admin.role === 'super_admin' ? 'bg-amber-100 text-amber-800' : ''}>
-                            {admin.role === 'super_admin' ? 'سوپر ادمین' : 'ادمین'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{admin.createdAt}</TableCell>
-                        <TableCell className="text-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => startEditAdmin(admin)}><Edit2 className="w-4 h-4 ml-2" />ویرایش</DropdownMenuItem>
-                              <Separator className="my-1" />
-                              <DropdownMenuItem className="text-destructive" onClick={() => deleteAdmin(admin.id)}><Trash2 className="w-4 h-4 ml-2" />حذف</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                          <span className="font-bold">{admin.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono text-sm" dir="ltr">{admin.phone}</TableCell>
+                      <TableCell>
+                        <Badge variant={admin.role === 'super_admin' ? 'default' : 'secondary'} className={admin.role === 'super_admin' ? 'bg-amber-100 text-amber-800' : ''}>
+                          {admin.role === 'super_admin' ? 'سوپر ادمین' : 'ادمین'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{admin.created_at}</TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => startEditAdmin(admin)}><Edit2 className="w-4 h-4 ml-2" />ویرایش</DropdownMenuItem>
+                            <Separator className="my-1" />
+                            <DropdownMenuItem className="text-destructive" onClick={() => deleteAdmin(admin.id)}><Trash2 className="w-4 h-4 ml-2" />حذف</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
@@ -360,7 +372,7 @@ function AdminDashboard() {
         </TabsContent>
       </Tabs>
 
-      {/* ═══════════ Add/Edit Shop Dialog ═══════════ */}
+      {/* Add/Edit Shop Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]" dir="rtl">
           <DialogHeader className="p-6 pb-2 shrink-0">
@@ -377,7 +389,7 @@ function AdminDashboard() {
                     <Label>لوگوی فروشگاه</Label>
                     <div className="flex items-center gap-4">
                       <Avatar className="w-16 h-16 rounded-2xl border-2 border-dashed border-muted-foreground/20">
-                        <AvatarImage src={formData.logoUrl} className="object-cover" />
+                        <AvatarImage src={formData.logo_url} className="object-cover" />
                         <AvatarFallback className="bg-muted/50"><ImageIcon className="w-8 h-8 opacity-20" /></AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
@@ -389,16 +401,14 @@ function AdminDashboard() {
                     </div>
                   </div>
                   <div className="space-y-2"><Label>نام فروشگاه</Label><Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="نام مجموعه" /></div>
-                  <div className="space-y-2"><Label>نام مدیر</Label><Input value={formData.managerName} onChange={(e) => setFormData({ ...formData, managerName: e.target.value })} placeholder="نام مدیر" /></div>
+                  <div className="space-y-2"><Label>نام مدیر</Label><Input value={formData.manager_name} onChange={(e) => setFormData({ ...formData, manager_name: e.target.value })} placeholder="نام مدیر" /></div>
                 </div>
                 <div className="space-y-5">
-                  <div className="space-y-2"><Label>شماره مدیر</Label><Input value={formData.managerPhone} onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })} placeholder="0912XXXXXXX" type="tel" /></div>
+                  <div className="space-y-2"><Label>شماره مدیر (برای ورود OTP)</Label><Input value={formData.manager_phone} onChange={(e) => setFormData({ ...formData, manager_phone: e.target.value })} placeholder="0912XXXXXXX" type="tel" /></div>
                 </div>
               </div>
 
               <Separator />
-
-              {/* Social Media - Iranian */}
               <div className="space-y-4">
                 <h3 className="font-bold text-lg flex items-center gap-2"><MessageCircle className="w-5 h-5 text-primary" />شبکه‌های اجتماعی ایرانی</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -409,8 +419,6 @@ function AdminDashboard() {
               </div>
 
               <Separator />
-
-              {/* Social Media - International */}
               <div className="space-y-4">
                 <h3 className="font-bold text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-secondary" />شبکه‌های اجتماعی بین‌المللی</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -427,37 +435,22 @@ function AdminDashboard() {
               </div>
 
               <Separator />
-
-              {/* SMS API Settings */}
               <div className="space-y-4">
                 <h3 className="font-bold text-lg flex items-center gap-2"><MessageSquare className="w-5 h-5 text-blue-500" />تنظیمات پیامک (SMS)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-1.5"><Key className="w-3.5 h-3.5 text-muted-foreground" />API SMS</Label>
-                    <Input value={formData.smsApi || ''} onChange={(e) => setFormData({ ...formData, smsApi: e.target.value })} placeholder="کلید API سرویس پیامکی" dir="ltr" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5 text-muted-foreground" />شماره خط ارسال‌کننده</Label>
-                    <Input value={formData.smsSender || ''} onChange={(e) => setFormData({ ...formData, smsSender: e.target.value })} placeholder="مثلاً 30007732" dir="ltr" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-muted-foreground" />الگو (Template)</Label>
-                    <Input value={formData.smsTemplate || ''} onChange={(e) => setFormData({ ...formData, smsTemplate: e.target.value })} placeholder="کد الگوی پیامکی" dir="ltr" />
-                  </div>
+                  <div className="space-y-2"><Label className="flex items-center gap-1.5"><Key className="w-3.5 h-3.5 text-muted-foreground" />API SMS</Label><Input value={formData.sms_api || ''} onChange={(e) => setFormData({ ...formData, sms_api: e.target.value })} placeholder="کلید API سرویس پیامکی" dir="ltr" /></div>
+                  <div className="space-y-2"><Label className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5 text-muted-foreground" />شماره خط ارسال‌کننده</Label><Input value={formData.sms_sender || ''} onChange={(e) => setFormData({ ...formData, sms_sender: e.target.value })} placeholder="مثلاً 30007732" dir="ltr" /></div>
+                  <div className="space-y-2"><Label className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-muted-foreground" />الگو (Template)</Label><Input value={formData.sms_template || ''} onChange={(e) => setFormData({ ...formData, sms_template: e.target.value })} placeholder="کد الگوی پیامکی" dir="ltr" /></div>
                 </div>
               </div>
 
               <Separator />
-
-              {/* Branches */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="font-bold text-lg flex items-center gap-2"><GitBranch className="w-5 h-5 text-secondary" />مدیریت شعبه‌ها</h3>
                   <Button variant="outline" size="sm" onClick={handleAddBranch}><Plus className="w-4 h-4 ml-1" />افزودن شعبه</Button>
                 </div>
-                {formData.branches.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-6 border rounded-lg border-dashed">هنوز شعبه‌ای اضافه نشده است.</p>
-                )}
+                {formData.branches.length === 0 && <p className="text-sm text-muted-foreground text-center py-6 border rounded-lg border-dashed">هنوز شعبه‌ای اضافه نشده است.</p>}
                 {formData.branches.map((branch) => (
                   <Card key={branch.id} className="p-4 space-y-3 relative">
                     <Button variant="ghost" size="icon" className="absolute top-2 left-2" onClick={() => handleRemoveBranch(branch.id)}><X className="w-4 h-4 text-destructive" /></Button>
@@ -485,25 +478,16 @@ function AdminDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* ═══════════ Domain Dialog ═══════════ */}
+      {/* Domain Dialog */}
       <Dialog open={isDomainDialogOpen} onOpenChange={setIsDomainDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><Globe className="w-5 h-5 text-blue-500" />{t('set_domain')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>دامنه اختصاصی</Label>
-              <Input value={domainData.domain} onChange={(e) => setDomainData({ ...domainData, domain: e.target.value })} placeholder="example.com" dir="ltr" />
-            </div>
+            <div className="space-y-2"><Label>دامنه اختصاصی</Label><Input value={domainData.domain} onChange={(e) => setDomainData({ ...domainData, domain: e.target.value })} placeholder="example.com" dir="ltr" /></div>
             <div className="flex items-center gap-2">
-              {domainData.status === 'active' ? (
-                <Badge className="bg-green-100 text-green-800"><CheckCircle2 className="w-3 h-3 ml-1" />فعال</Badge>
-              ) : (
-                <Badge variant="outline" className="text-orange-600 border-orange-200"><AlertCircle className="w-3 h-3 ml-1" />در انتظار</Badge>
-              )}
+              {domainData.status === 'active' ? <Badge className="bg-green-100 text-green-800"><CheckCircle2 className="w-3 h-3 ml-1" />فعال</Badge> : <Badge variant="outline" className="text-orange-600 border-orange-200"><AlertCircle className="w-3 h-3 ml-1" />در انتظار</Badge>}
             </div>
-            <Button variant="outline" className="w-full" onClick={handleCheckDns} disabled={isCheckingDns}>
-              {isCheckingDns ? 'در حال بررسی...' : 'بررسی DNS'}
-            </Button>
+            <Button variant="outline" className="w-full" onClick={handleCheckDns} disabled={isCheckingDns}>{isCheckingDns ? 'در حال بررسی...' : 'بررسی DNS'}</Button>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDomainDialogOpen(false)}>انصراف</Button>
@@ -512,24 +496,13 @@ function AdminDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* ═══════════ Add/Edit Admin Dialog ═══════════ */}
+      {/* Admin Dialog */}
       <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              {isEditingAdmin ? 'ویرایش ادمین' : 'افزودن ادمین جدید'}
-            </DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Shield className="w-5 h-5 text-primary" />{isEditingAdmin ? 'ویرایش ادمین' : 'افزودن ادمین جدید'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>نام</Label>
-              <Input value={adminFormData.name} onChange={(e) => setAdminFormData({ ...adminFormData, name: e.target.value })} placeholder="نام ادمین" />
-            </div>
-            <div className="space-y-2">
-              <Label>شماره تماس</Label>
-              <Input value={adminFormData.phone} onChange={(e) => setAdminFormData({ ...adminFormData, phone: e.target.value })} placeholder="09XXXXXXXXX" type="tel" dir="ltr" />
-            </div>
+            <div className="space-y-2"><Label>نام</Label><Input value={adminFormData.name} onChange={(e) => setAdminFormData({ ...adminFormData, name: e.target.value })} placeholder="نام ادمین" /></div>
+            <div className="space-y-2"><Label>شماره تماس</Label><Input value={adminFormData.phone} onChange={(e) => setAdminFormData({ ...adminFormData, phone: e.target.value })} placeholder="09XXXXXXXXX" type="tel" dir="ltr" /></div>
             <div className="space-y-2">
               <Label>سطح دسترسی</Label>
               <Select value={adminFormData.role} onValueChange={(val: 'super_admin' | 'admin') => setAdminFormData({ ...adminFormData, role: val })}>
