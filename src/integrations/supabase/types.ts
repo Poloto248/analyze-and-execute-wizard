@@ -14,7 +14,176 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      branches: {
+        Row: {
+          address: string | null
+          created_at: string
+          google_maps_url: string | null
+          id: string
+          name: string
+          phone: string | null
+          phone2: string | null
+          phone3: string | null
+          shop_id: string
+          tracking_api_url: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          google_maps_url?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          phone2?: string | null
+          phone3?: string | null
+          shop_id: string
+          tracking_api_url?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          google_maps_url?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          phone2?: string | null
+          phone3?: string | null
+          shop_id?: string
+          tracking_api_url?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branches_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shops: {
+        Row: {
+          about: string | null
+          address: string | null
+          bale: string | null
+          created_at: string
+          domain: string | null
+          eitaa: string | null
+          facebook: string | null
+          id: string
+          instagram: string | null
+          is_domain_active: boolean | null
+          linkedin: string | null
+          logo_url: string | null
+          manager_name: string
+          manager_phone: string
+          name: string
+          rubika: string | null
+          sms_api: string | null
+          sms_sender: string | null
+          sms_template: string | null
+          subdomain: string
+          telegram: string | null
+          tiktok: string | null
+          twitter: string | null
+          updated_at: string
+          website: string | null
+          whatsapp: string | null
+          youtube: string | null
+        }
+        Insert: {
+          about?: string | null
+          address?: string | null
+          bale?: string | null
+          created_at?: string
+          domain?: string | null
+          eitaa?: string | null
+          facebook?: string | null
+          id?: string
+          instagram?: string | null
+          is_domain_active?: boolean | null
+          linkedin?: string | null
+          logo_url?: string | null
+          manager_name: string
+          manager_phone: string
+          name: string
+          rubika?: string | null
+          sms_api?: string | null
+          sms_sender?: string | null
+          sms_template?: string | null
+          subdomain: string
+          telegram?: string | null
+          tiktok?: string | null
+          twitter?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          youtube?: string | null
+        }
+        Update: {
+          about?: string | null
+          address?: string | null
+          bale?: string | null
+          created_at?: string
+          domain?: string | null
+          eitaa?: string | null
+          facebook?: string | null
+          id?: string
+          instagram?: string | null
+          is_domain_active?: boolean | null
+          linkedin?: string | null
+          logo_url?: string | null
+          manager_name?: string
+          manager_phone?: string
+          name?: string
+          rubika?: string | null
+          sms_api?: string | null
+          sms_sender?: string | null
+          sms_template?: string | null
+          subdomain?: string
+          telegram?: string | null
+          tiktok?: string | null
+          twitter?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          youtube?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
