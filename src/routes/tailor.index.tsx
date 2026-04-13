@@ -60,14 +60,6 @@ function TailorDashboard() {
   const [editRubika, setEditRubika] = useState('');
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [branchSaving, setBranchSaving] = useState(false);
-  const [editAddress, setEditAddress] = useState('');
-  const [editAbout, setEditAbout] = useState('');
-  const [editInstagram, setEditInstagram] = useState('');
-  const [editTelegram, setEditTelegram] = useState('');
-  const [editWhatsapp, setEditWhatsapp] = useState('');
-  const [editEitaa, setEditEitaa] = useState('');
-  const [editBale, setEditBale] = useState('');
-  const [editRubika, setEditRubika] = useState('');
 
   const fetchShopData = useCallback(async (shopId: string) => {
     const { data: shopData } = await supabase.from('shops').select('*').eq('id', shopId).maybeSingle();
