@@ -23,7 +23,7 @@ export const Route = createFileRoute("/tailor/")({
 
 interface Branch {
   id: string; name: string; address: string;
-  phone: string; phone2?: string; whatsapp: string;
+  phone: string; phone2?: string; phone3?: string; whatsapp: string;
   google_maps_url?: string; tracking_api_url?: string;
 }
 
