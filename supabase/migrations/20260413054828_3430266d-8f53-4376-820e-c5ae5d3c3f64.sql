@@ -1,0 +1,1 @@
+ALTER TABLE public.shops ADD CONSTRAINT shops_manager_phone_unique UNIQUE (manager_phone);

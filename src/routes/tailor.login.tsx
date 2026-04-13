@@ -24,10 +24,11 @@ function TailorLoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await supabase
+      const { data, error: queryError } = await supabase
         .from('shops')
         .select('id, name')
         .eq('manager_phone', phone)
+        .limit(1)
         .maybeSingle();
 
       if (!data) {
