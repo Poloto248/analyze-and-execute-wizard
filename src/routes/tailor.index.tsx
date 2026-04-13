@@ -82,7 +82,9 @@ function TailorDashboard() {
     setEditRubika(shopData.rubika || '');
 
     const { data: branchesData } = await supabase.from('branches').select('*').eq('shop_id', shopId);
-    setBranches((branchesData || []) as Branch[]);
+    const mapped = (branchesData || []) as Branch[];
+    setBranches(mapped);
+    setEditBranches(JSON.parse(JSON.stringify(mapped)));
     setLoading(false);
   }, [navigate]);
 
