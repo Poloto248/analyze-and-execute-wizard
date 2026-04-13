@@ -127,7 +127,27 @@ function TailorDashboard() {
     await fetchShopData(shop.id);
   };
 
-  const handleLogout = () => {
+  const handleBranchChange = (id: string, field: keyof Branch, value: string) => {
+    setEditBranches(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+  };
+
+  const handleSaveBranches = async () => {
+    if (!shop) return;
+    setBranchSaving(true);
+    for (const branch of editBranches) {
+      await supabase.from('branches').update({
+        address: branch.address || null,
+        phone: branch.phone || null,
+        phone2: branch.phone2 || null,
+        phone3: branch.phone3 || null,
+        whatsapp: branch.whatsapp || null,
+        google_maps_url: branch.google_maps_url || null,
+      }).eq('id', branch.id);
+    }
+    await fetchShopData(shop.id);
+    setBranchSaving(false);
+  };
+
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tailor_authenticated');
       localStorage.removeItem('tailor_shop_id');
