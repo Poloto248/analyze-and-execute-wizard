@@ -136,6 +136,7 @@ function TailorDashboard() {
     setBranchSaving(true);
     for (const branch of editBranches) {
       await supabase.from('branches').update({
+        name: branch.name,
         address: branch.address || null,
         phone: branch.phone || null,
         phone2: branch.phone2 || null,
