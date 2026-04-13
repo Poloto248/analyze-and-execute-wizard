@@ -148,6 +148,7 @@ function TailorDashboard() {
     setBranchSaving(false);
   };
 
+  const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tailor_authenticated');
       localStorage.removeItem('tailor_shop_id');
