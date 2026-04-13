@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Instagram, Send, MapPin, Store, Phone, Share2, MessageCircle,
   Upload, LogOut, Info, Image as ImageIcon, GitBranch, Globe,
-  MessageSquare, Settings, LayoutDashboard
+  MessageSquare, Settings, LayoutDashboard, Save, Navigation
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
