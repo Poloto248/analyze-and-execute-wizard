@@ -363,7 +363,6 @@ function TailorDashboard() {
                 </div>
               </div>
             )}
-            )}
           </TabsContent>
         </Tabs>
       </main>
