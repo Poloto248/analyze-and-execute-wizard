@@ -136,6 +136,7 @@ function TailorDashboard() {
     setBranchSaving(true);
     for (const branch of editBranches) {
       await supabase.from('branches').update({
+        name: branch.name,
         address: branch.address || null,
         phone: branch.phone || null,
         phone2: branch.phone2 || null,
@@ -318,7 +319,10 @@ function TailorDashboard() {
                 {editBranches.map((branch) => (
                   <Card key={branch.id} className="shadow-sm">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" />{branch.name}</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary shrink-0" />
+                        <Input value={branch.name} onChange={(e) => handleBranchChange(branch.id, 'name', e.target.value)} className="rounded-xl font-bold text-base h-10" placeholder="نام شعبه" />
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
