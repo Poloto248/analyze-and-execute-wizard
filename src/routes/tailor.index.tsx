@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Instagram, Send, MapPin, Store, Phone, Share2, MessageCircle,
   Upload, LogOut, Info, Image as ImageIcon, GitBranch, Globe,
-  MessageSquare, Settings, LayoutDashboard
+  MessageSquare, Settings, LayoutDashboard, Save, Navigation
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/tailor/")({
 
 interface Branch {
   id: string; name: string; address: string;
-  phone: string; phone2?: string; whatsapp: string;
+  phone: string; phone2?: string; phone3?: string; whatsapp: string;
   google_maps_url?: string; tracking_api_url?: string;
 }
 
@@ -58,6 +58,8 @@ function TailorDashboard() {
   const [editEitaa, setEditEitaa] = useState('');
   const [editBale, setEditBale] = useState('');
   const [editRubika, setEditRubika] = useState('');
+  const [editBranches, setEditBranches] = useState<Branch[]>([]);
+  const [branchSaving, setBranchSaving] = useState(false);
 
   const fetchShopData = useCallback(async (shopId: string) => {
     const { data: shopData } = await supabase.from('shops').select('*').eq('id', shopId).maybeSingle();
@@ -80,7 +82,9 @@ function TailorDashboard() {
     setEditRubika(shopData.rubika || '');
 
     const { data: branchesData } = await supabase.from('branches').select('*').eq('shop_id', shopId);
-    setBranches((branchesData || []) as Branch[]);
+    const mapped = (branchesData || []) as Branch[];
+    setBranches(mapped);
+    setEditBranches(JSON.parse(JSON.stringify(mapped)));
     setLoading(false);
   }, [navigate]);
 
@@ -121,6 +125,27 @@ function TailorDashboard() {
       rubika: editRubika || null,
     }).eq('id', shop.id);
     await fetchShopData(shop.id);
+  };
+
+  const handleBranchChange = (id: string, field: keyof Branch, value: string) => {
+    setEditBranches(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+  };
+
+  const handleSaveBranches = async () => {
+    if (!shop) return;
+    setBranchSaving(true);
+    for (const branch of editBranches) {
+      await supabase.from('branches').update({
+        address: branch.address || null,
+        phone: branch.phone || null,
+        phone2: branch.phone2 || null,
+        phone3: branch.phone3 || null,
+        whatsapp: branch.whatsapp || null,
+        google_maps_url: branch.google_maps_url || null,
+      }).eq('id', branch.id);
+    }
+    await fetchShopData(shop.id);
+    setBranchSaving(false);
   };
 
   const handleLogout = () => {
@@ -273,37 +298,69 @@ function TailorDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="branches" className="space-y-4 mt-6">
+          <TabsContent value="branches" className="space-y-4 mt-6 pb-24">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <GitBranch className="w-5 h-5" />شعبه‌ها
-                <Badge variant="secondary">{branches.length}</Badge>
+                <Badge variant="secondary">{editBranches.length}</Badge>
               </h2>
+              <p className="text-xs text-muted-foreground">برای افزودن/حذف شعبه با ادمین کل تماس بگیرید</p>
             </div>
 
-            {branches.length === 0 ? (
+            {editBranches.length === 0 ? (
               <Card className="shadow-sm border-dashed border-2">
                 <CardContent className="p-8 text-center text-muted-foreground">
                   <p>هنوز شعبه‌ای توسط ادمین کل اضافه نشده است.</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {branches.map((branch) => (
+              <div className="space-y-4">
+                {editBranches.map((branch) => (
                   <Card key={branch.id} className="shadow-sm">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" />{branch.name}</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {branch.address && <p className="text-muted-foreground">{branch.address}</p>}
-                      <div className="flex flex-wrap gap-3">
-                        {branch.phone && <Badge variant="outline" className="gap-1"><Phone className="w-3 h-3" />{branch.phone}</Badge>}
-                        {branch.phone2 && <Badge variant="outline" className="gap-1"><Phone className="w-3 h-3" />{branch.phone2}</Badge>}
-                        {branch.whatsapp && <Badge variant="outline" className="gap-1"><MessageCircle className="w-3 h-3" />{branch.whatsapp}</Badge>}
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-bold flex items-center gap-1"><Navigation className="w-3 h-3" />آدرس</Label>
+                        <Input value={branch.address || ''} onChange={(e) => handleBranchChange(branch.id, 'address', e.target.value)} className="rounded-xl" placeholder="آدرس شعبه..." />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold flex items-center gap-1"><Phone className="w-3 h-3" />تلفن ۱</Label>
+                          <Input value={branch.phone || ''} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold flex items-center gap-1"><Phone className="w-3 h-3" />تلفن ۲</Label>
+                          <Input value={branch.phone2 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone2', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن دوم" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold flex items-center gap-1"><Phone className="w-3 h-3" />تلفن ۳</Label>
+                          <Input value={branch.phone3 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone3', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن سوم" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold flex items-center gap-1"><MessageCircle className="w-3 h-3" />واتس‌اپ</Label>
+                          <Input value={branch.whatsapp || ''} onChange={(e) => handleBranchChange(branch.id, 'whatsapp', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره واتس‌اپ" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-bold flex items-center gap-1"><Globe className="w-3 h-3" />لینک گوگل مپ</Label>
+                          <Input value={branch.google_maps_url || ''} onChange={(e) => handleBranchChange(branch.id, 'google_maps_url', e.target.value)} dir="ltr" className="rounded-xl" placeholder="https://maps.google.com/..." />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
+
+                <div className="fixed bottom-0 inset-x-0 bg-card/80 backdrop-blur-xl border-t p-4 z-30">
+                  <div className="max-w-6xl mx-auto flex gap-3 justify-end">
+                    <Button variant="outline" className="rounded-xl" onClick={() => shop && fetchShopData(shop.id)}>انصراف</Button>
+                    <Button className="rounded-xl px-8 font-bold gap-2" onClick={handleSaveBranches} disabled={branchSaving}>
+                      <Save className="w-4 h-4" />{branchSaving ? 'در حال ذخیره...' : 'ذخیره تغییرات شعب'}
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </TabsContent>
