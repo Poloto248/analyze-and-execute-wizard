@@ -161,7 +161,7 @@ function TailorDashboard() {
   if (!shop) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-32" dir="rtl">
       <header className="bg-card border-b sticky top-0 z-20 shadow-sm">
         <div className="max-w-6xl mx-auto p-4 md:p-6 flex justify-between items-center">
           <div className="flex items-center gap-4">
