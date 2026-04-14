@@ -181,8 +181,8 @@ function TailorDashboard() {
       </header>
 
       <main className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="text-left">
-          <TabsList className="grid grid-cols-3 max-w-lg ml-0 mr-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="text-right">
+          <TabsList className="grid grid-cols-3 max-w-lg mr-0 ml-auto">
             <TabsTrigger value="overview" className="gap-2"><LayoutDashboard className="w-4 h-4" />نمای کلی</TabsTrigger>
             <TabsTrigger value="settings" className="gap-2"><Settings className="w-4 h-4" />تنظیمات</TabsTrigger>
             <TabsTrigger value="branches" className="gap-2"><GitBranch className="w-4 h-4" />شعبه‌ها</TabsTrigger>
