@@ -226,19 +226,19 @@ function AdminDashboard() {
   if (loading) return <div className="flex items-center justify-center min-h-screen"><p className="text-muted-foreground">در حال بارگذاری...</p></div>;
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 md:space-y-8">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div dir="rtl" className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 md:space-y-8 text-right">
+      <header className="flex flex-col md:flex-row-reverse justify-between items-start md:items-center gap-4">
+        <Button variant="outline" onClick={handleLogout}><LogOut className="ml-2 w-4 h-4" />خروج</Button>
         <div>
           <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('admin_dashboard')}</h1>
           <p className="text-sm text-muted-foreground mt-1">پنل مدیریت سراسری (سوپر ادمین)</p>
         </div>
-        <Button variant="outline" onClick={handleLogout}><LogOut className="ml-2 w-4 h-4" />خروج</Button>
       </header>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="shops" className="gap-2"><Store className="w-4 h-4" />مدیریت فروشگاه‌ها</TabsTrigger>
-          <TabsTrigger value="admins" className="gap-2"><Shield className="w-4 h-4" />مدیریت ادمین‌ها</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="text-right">
+        <TabsList className="grid w-full grid-cols-2 max-w-md mr-0 ml-auto">
+          <TabsTrigger value="shops" className="gap-2 flex-row-reverse"><Store className="w-4 h-4" />مدیریت فروشگاه‌ها</TabsTrigger>
+          <TabsTrigger value="admins" className="gap-2 flex-row-reverse"><Shield className="w-4 h-4" />مدیریت ادمین‌ها</TabsTrigger>
         </TabsList>
 
         <TabsContent value="shops" className="space-y-4 mt-6">
@@ -254,14 +254,14 @@ function AdminDashboard() {
           <Card className="shadow-sm border-none overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead className="min-w-[200px]">{t('unit_name')}</TableHead>
-                    <TableHead className="hidden sm:table-cell">{t('manager_name')}</TableHead>
-                    <TableHead className="hidden md:table-cell">شعب و دامنه</TableHead>
-                    <TableHead className="text-center">{t('actions')}</TableHead>
-                  </TableRow>
-                </TableHeader>
+                 <TableHeader className="bg-muted/50">
+                   <TableRow>
+                     <TableHead className="min-w-[200px] text-right">{t('unit_name')}</TableHead>
+                     <TableHead className="hidden sm:table-cell text-right">{t('manager_name')}</TableHead>
+                     <TableHead className="hidden md:table-cell text-right">شعب و دامنه</TableHead>
+                     <TableHead className="text-center">{t('actions')}</TableHead>
+                   </TableRow>
+                 </TableHeader>
                 <TableBody>
                   {shops.length === 0 ? (
                     <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
@@ -324,15 +324,15 @@ function AdminDashboard() {
           <Card className="shadow-sm border-none overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead>نام</TableHead>
-                    <TableHead>شماره تماس</TableHead>
-                    <TableHead>سطح دسترسی</TableHead>
-                    <TableHead className="hidden sm:table-cell">تاریخ ایجاد</TableHead>
-                    <TableHead className="text-center">عملیات</TableHead>
-                  </TableRow>
-                </TableHeader>
+                 <TableHeader className="bg-muted/50">
+                   <TableRow>
+                     <TableHead className="text-right">نام</TableHead>
+                     <TableHead className="text-right">شماره تماس</TableHead>
+                     <TableHead className="text-right">سطح دسترسی</TableHead>
+                     <TableHead className="hidden sm:table-cell text-right">تاریخ ایجاد</TableHead>
+                     <TableHead className="text-center">عملیات</TableHead>
+                   </TableRow>
+                 </TableHeader>
                 <TableBody>
                   {admins.length === 0 ? (
                     <TableRow><TableCell colSpan={5} className="h-32 text-center text-muted-foreground">هیچ ادمینی یافت نشد.</TableCell></TableRow>
