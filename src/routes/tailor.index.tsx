@@ -191,13 +191,13 @@ function TailorDashboard() {
           <TabsContent value="overview" className="space-y-6 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
+                <CardContent className="p-6 flex items-center gap-4 flex-row-reverse">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><GitBranch className="w-6 h-6 text-primary" /></div>
                   <div><p className="text-2xl font-bold">{branches.length}</p><p className="text-sm text-muted-foreground">شعبه</p></div>
                 </CardContent>
               </Card>
               <Card className="shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
+                <CardContent className="p-6 flex items-center gap-4 flex-row-reverse">
                   <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center"><Globe className="w-6 h-6 text-secondary" /></div>
                   <div>
                     <p className="text-sm font-bold" dir="ltr">{shop.subdomain}</p>
@@ -207,7 +207,7 @@ function TailorDashboard() {
                 </CardContent>
               </Card>
               <Card className="shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
+                <CardContent className="p-6 flex items-center gap-4 flex-row-reverse">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><MessageSquare className="w-6 h-6 text-primary" /></div>
                   <div>
                     <p className="text-sm font-bold">{shop.sms_api ? 'فعال' : 'غیرفعال'}</p>
@@ -218,10 +218,10 @@ function TailorDashboard() {
             </div>
 
             <Card className="shadow-sm">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Info className="w-4 h-4" />اطلاعات مدیر</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base flex-row-reverse"><Info className="w-4 h-4" />اطلاعات مدیر</CardTitle></CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">نام مدیر:</span><span className="font-bold">{shop.manager_name}</span></div>
-                <div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">شماره تماس:</span><span className="font-mono" dir="ltr">{shop.manager_phone}</span></div>
+                 <div className="flex items-center gap-2 text-sm flex-row-reverse"><span className="text-muted-foreground">نام مدیر:</span><span className="font-bold">{shop.manager_name}</span></div>
+                 <div className="flex items-center gap-2 text-sm flex-row-reverse"><span className="text-muted-foreground">شماره تماس:</span><span className="font-mono" dir="ltr">{shop.manager_phone}</span></div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -231,7 +231,7 @@ function TailorDashboard() {
               <div className="lg:col-span-2 space-y-8">
                 <Card className="shadow-xl border-none overflow-hidden rounded-[2rem]">
                   <CardHeader className="bg-muted/30 pb-6 border-b">
-                    <CardTitle className="flex items-center gap-2"><Store className="w-5 h-5 text-secondary" />اطلاعات اصلی مجموعه</CardTitle>
+                    <CardTitle className="flex items-center gap-2 flex-row-reverse"><Store className="w-5 h-5 text-secondary" />اطلاعات اصلی مجموعه</CardTitle>
                   </CardHeader>
                   <CardContent className="p-8 space-y-8">
                     <div className="flex flex-col md:flex-row items-center gap-8">
@@ -269,18 +269,18 @@ function TailorDashboard() {
               <div className="space-y-8">
                 <Card className="shadow-xl border-none overflow-hidden rounded-[2rem]">
                   <CardHeader className="bg-muted/30 pb-6 border-b">
-                    <CardTitle className="flex items-center gap-2"><Share2 className="w-5 h-5 text-secondary" />شبکه‌های اجتماعی</CardTitle>
+                    <CardTitle className="flex items-center gap-2 flex-row-reverse"><Share2 className="w-5 h-5 text-secondary" />شبکه‌های اجتماعی</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6 space-y-4">
-                    <div className="space-y-2"><Label className="flex items-center gap-2 font-bold"><Instagram className="w-4 h-4" />اینستاگرام</Label><Input value={editInstagram} onChange={(e) => setEditInstagram(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
-                    <div className="space-y-2"><Label className="flex items-center gap-2 font-bold"><Send className="w-4 h-4" />تلگرام</Label><Input value={editTelegram} onChange={(e) => setEditTelegram(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
-                    <div className="space-y-2"><Label className="flex items-center gap-2 font-bold"><MessageCircle className="w-4 h-4" />واتس‌اپ</Label><Input value={editWhatsapp} onChange={(e) => setEditWhatsapp(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
+                     <div className="space-y-2"><Label className="flex items-center gap-2 font-bold flex-row-reverse"><Instagram className="w-4 h-4" />اینستاگرام</Label><Input value={editInstagram} onChange={(e) => setEditInstagram(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
+                     <div className="space-y-2"><Label className="flex items-center gap-2 font-bold flex-row-reverse"><Send className="w-4 h-4" />تلگرام</Label><Input value={editTelegram} onChange={(e) => setEditTelegram(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
+                     <div className="space-y-2"><Label className="flex items-center gap-2 font-bold flex-row-reverse"><MessageCircle className="w-4 h-4" />واتس‌اپ</Label><Input value={editWhatsapp} onChange={(e) => setEditWhatsapp(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
                   </CardContent>
                 </Card>
 
                 <Card className="shadow-xl border-none overflow-hidden rounded-[2rem]">
                   <CardHeader className="bg-muted/30 pb-6 border-b">
-                    <CardTitle className="flex items-center gap-2">شبکه‌های ایرانی</CardTitle>
+                    <CardTitle className="flex items-center gap-2 flex-row-reverse">شبکه‌های ایرانی</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6 space-y-4">
                     <div className="space-y-2"><Label className="font-bold">ایتا</Label><Input value={editEitaa} onChange={(e) => setEditEitaa(e.target.value)} dir="ltr" className="rounded-xl h-11" /></div>
@@ -300,12 +300,12 @@ function TailorDashboard() {
           </TabsContent>
 
           <TabsContent value="branches" className="space-y-4 mt-6 pb-24">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                <GitBranch className="w-5 h-5" />شعبه‌ها
-                <Badge variant="secondary">{editBranches.length}</Badge>
-              </h2>
-              <p className="text-xs text-muted-foreground">برای افزودن/حذف شعبه با ادمین کل تماس بگیرید</p>
+             <div className="flex justify-between items-center flex-row-reverse">
+               <h2 className="text-lg font-semibold flex items-center gap-2 flex-row-reverse">
+                 <GitBranch className="w-5 h-5" />شعبه‌ها
+                 <Badge variant="secondary">{editBranches.length}</Badge>
+               </h2>
+               <p className="text-xs text-muted-foreground">برای افزودن/حذف شعبه با ادمین کل تماس بگیرید</p>
             </div>
 
             {editBranches.length === 0 ? (
@@ -319,37 +319,37 @@ function TailorDashboard() {
                 {editBranches.map((branch) => (
                   <Card key={branch.id} className="shadow-sm">
                     <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-row-reverse">
                         <MapPin className="w-4 h-4 text-primary shrink-0" />
                         <Input value={branch.name} onChange={(e) => handleBranchChange(branch.id, 'name', e.target.value)} className="rounded-xl font-bold text-base h-10" placeholder="نام شعبه" />
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-bold flex items-center gap-1"><Navigation className="w-3 h-3" />آدرس</Label>
+                        <Label className="text-sm font-bold flex items-center gap-1 flex-row-reverse"><Navigation className="w-3 h-3" />آدرس</Label>
                         <Input value={branch.address || ''} onChange={(e) => handleBranchChange(branch.id, 'address', e.target.value)} className="rounded-xl" placeholder="آدرس شعبه..." />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-sm font-bold flex items-center gap-1"><Phone className="w-3 h-3" />تلفن ۱</Label>
-                          <Input value={branch.phone || ''} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-bold flex items-center gap-1"><Phone className="w-3 h-3" />تلفن ۲</Label>
-                          <Input value={branch.phone2 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone2', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن دوم" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-bold flex items-center gap-1"><Phone className="w-3 h-3" />تلفن ۳</Label>
-                          <Input value={branch.phone3 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone3', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن سوم" />
+                           <Label className="text-sm font-bold flex items-center gap-1 flex-row-reverse"><Phone className="w-3 h-3" />تلفن ۱</Label>
+                           <Input value={branch.phone || ''} onChange={(e) => handleBranchChange(branch.id, 'phone', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-sm font-bold flex items-center gap-1 flex-row-reverse"><Phone className="w-3 h-3" />تلفن ۲</Label>
+                           <Input value={branch.phone2 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone2', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن دوم" />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-sm font-bold flex items-center gap-1 flex-row-reverse"><Phone className="w-3 h-3" />تلفن ۳</Label>
+                           <Input value={branch.phone3 || ''} onChange={(e) => handleBranchChange(branch.id, 'phone3', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره تلفن سوم" />
                         </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-sm font-bold flex items-center gap-1"><MessageCircle className="w-3 h-3" />واتس‌اپ</Label>
+                          <Label className="text-sm font-bold flex items-center gap-1 flex-row-reverse"><MessageCircle className="w-3 h-3" />واتس‌اپ</Label>
                           <Input value={branch.whatsapp || ''} onChange={(e) => handleBranchChange(branch.id, 'whatsapp', e.target.value)} dir="ltr" className="rounded-xl" placeholder="شماره واتس‌اپ" />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-sm font-bold flex items-center gap-1"><Globe className="w-3 h-3" />لینک گوگل مپ</Label>
+                          <Label className="text-sm font-bold flex items-center gap-1 flex-row-reverse"><Globe className="w-3 h-3" />لینک گوگل مپ</Label>
                           <Input value={branch.google_maps_url || ''} onChange={(e) => handleBranchChange(branch.id, 'google_maps_url', e.target.value)} dir="ltr" className="rounded-xl" placeholder="https://maps.google.com/..." />
                         </div>
                       </div>
