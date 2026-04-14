@@ -324,15 +324,15 @@ function AdminDashboard() {
           <Card className="shadow-sm border-none overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead>نام</TableHead>
-                    <TableHead>شماره تماس</TableHead>
-                    <TableHead>سطح دسترسی</TableHead>
-                    <TableHead className="hidden sm:table-cell">تاریخ ایجاد</TableHead>
-                    <TableHead className="text-center">عملیات</TableHead>
-                  </TableRow>
-                </TableHeader>
+                 <TableHeader className="bg-muted/50">
+                   <TableRow>
+                     <TableHead className="text-right">نام</TableHead>
+                     <TableHead className="text-right">شماره تماس</TableHead>
+                     <TableHead className="text-right">سطح دسترسی</TableHead>
+                     <TableHead className="hidden sm:table-cell text-right">تاریخ ایجاد</TableHead>
+                     <TableHead className="text-center">عملیات</TableHead>
+                   </TableRow>
+                 </TableHeader>
                 <TableBody>
                   {admins.length === 0 ? (
                     <TableRow><TableCell colSpan={5} className="h-32 text-center text-muted-foreground">هیچ ادمینی یافت نشد.</TableCell></TableRow>
