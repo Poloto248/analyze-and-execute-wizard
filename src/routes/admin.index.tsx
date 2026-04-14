@@ -254,14 +254,14 @@ function AdminDashboard() {
           <Card className="shadow-sm border-none overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead className="min-w-[200px]">{t('unit_name')}</TableHead>
-                    <TableHead className="hidden sm:table-cell">{t('manager_name')}</TableHead>
-                    <TableHead className="hidden md:table-cell">شعب و دامنه</TableHead>
-                    <TableHead className="text-center">{t('actions')}</TableHead>
-                  </TableRow>
-                </TableHeader>
+                 <TableHeader className="bg-muted/50">
+                   <TableRow>
+                     <TableHead className="min-w-[200px] text-right">{t('unit_name')}</TableHead>
+                     <TableHead className="hidden sm:table-cell text-right">{t('manager_name')}</TableHead>
+                     <TableHead className="hidden md:table-cell text-right">شعب و دامنه</TableHead>
+                     <TableHead className="text-center">{t('actions')}</TableHead>
+                   </TableRow>
+                 </TableHeader>
                 <TableBody>
                   {shops.length === 0 ? (
                     <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
