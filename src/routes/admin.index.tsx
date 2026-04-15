@@ -258,12 +258,13 @@ function AdminDashboard() {
                    <TableRow>
                      <TableHead className="min-w-[200px] text-right">{t('unit_name')}</TableHead>
                      <TableHead className="hidden sm:table-cell text-right">{t('manager_name')}</TableHead>
-                     <TableHead className="text-center">{t('actions')}</TableHead>
+                     <TableHead className="hidden sm:table-cell text-right">تعداد شعب</TableHead>
+                     <TableHead className="text-left">{t('actions')}</TableHead>
                    </TableRow>
                  </TableHeader>
                 <TableBody>
                   {shops.length === 0 ? (
-                    <TableRow><TableCell colSpan={3} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
                   ) : shops.map((shop) => (
                     <TableRow key={shop.id} className="hover:bg-muted/30 transition-colors">
                       <TableCell>
@@ -281,10 +282,16 @@ function AdminDashboard() {
                       <TableCell className="hidden sm:table-cell text-right">
                         <div className="flex items-center gap-2 text-sm flex-row-reverse justify-end"><User className="w-3 h-3 text-muted-foreground" />{shop.manager_name}</div>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden sm:table-cell text-right">
+                        <Badge variant="secondary" className="gap-1 flex-row-reverse">
+                          <GitBranch className="w-3 h-3" />
+                          {shop.branches.length}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-left">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="start">
                             <DropdownMenuItem onClick={() => startEdit(shop)}><Edit2 className="w-4 h-4 ml-2" />{t('edit')}</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => startSetDomain(shop)}><Globe className="w-4 h-4 ml-2 text-blue-500" />{t('set_domain')}</DropdownMenuItem>
                             <Separator className="my-1" />
