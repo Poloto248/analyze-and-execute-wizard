@@ -89,8 +89,10 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [language, setLanguage] = useState<Language>('fa');
 
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === 'fa' ? 'rtl' : 'ltr';
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+      document.documentElement.dir = language === 'fa' ? 'rtl' : 'ltr';
+    }
   }, [language]);
 
   const t = (key: string) => {
