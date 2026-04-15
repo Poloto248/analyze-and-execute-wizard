@@ -263,7 +263,7 @@ function AdminDashboard() {
                  </TableHeader>
                 <TableBody>
                   {shops.length === 0 ? (
-                    <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={3} className="h-32 text-center text-muted-foreground">هیچ مجموعه‌ای یافت نشد.</TableCell></TableRow>
                   ) : shops.map((shop) => (
                     <TableRow key={shop.id} className="hover:bg-muted/30 transition-colors">
                       <TableCell>
@@ -280,16 +280,6 @@ function AdminDashboard() {
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
                         <div className="flex items-center gap-2 text-sm"><User className="w-3 h-3 text-muted-foreground" />{shop.manager_name}</div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="flex flex-col gap-1.5">
-                          <Badge variant="secondary" className="gap-1.5 px-3 w-fit"><GitBranch className="w-3.5 h-3.5" />{shop.branches.length} شعبه</Badge>
-                          {shop.domain && (
-                            <Badge variant={shop.is_domain_active ? "default" : "outline"} className={`gap-1.5 px-3 w-fit ${shop.is_domain_active ? 'bg-green-100 text-green-800' : 'text-orange-600 border-orange-200'}`}>
-                              <Globe className="w-3.5 h-3.5" />{shop.domain}
-                            </Badge>
-                          )}
-                        </div>
                       </TableCell>
                       <TableCell className="text-center">
                         <DropdownMenu>
