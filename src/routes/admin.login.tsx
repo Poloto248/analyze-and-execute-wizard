@@ -6,10 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Card, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Smartphone, Lock, ArrowRight, ArrowLeft, ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/login")({
   component: AdminLoginPage,
 });
+
+const FIXED_OTP = "1234";
 
 function AdminLoginPage() {
   const { t, dir } = useTranslation();
@@ -17,12 +21,35 @@ function AdminLoginPage() {
   const [step, setStep] = useState(1);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) {
+      const trimmed = phone.trim();
+      if (!/^09\d{9}$/.test(trimmed)) {
+        toast.error("شماره موبایل معتبر نیست");
+        return;
+      }
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('id, phone, role')
+        .eq('phone', trimmed)
+        .maybeSingle();
+      setLoading(false);
+      if (error || !data) {
+        toast.error("این شماره به‌عنوان ادمین ثبت نشده است");
+        return;
+      }
+      toast.success("کد تایید: " + FIXED_OTP);
       setStep(2);
     } else {
+      if (otp !== FIXED_OTP) {
+        toast.error("کد تایید نادرست است");
+        return;
+      }
       localStorage.setItem('admin_authenticated', 'true');
+      localStorage.setItem('admin_phone', phone.trim());
       navigate({ to: '/admin' });
     }
   };
@@ -46,10 +73,12 @@ function AdminLoginPage() {
                 <div className="relative">
                   <Input 
                     className="h-14 text-xl tracking-widest text-center rounded-2xl border-2 focus:border-primary pr-12"
-                    placeholder="۰۹۱۲۰۰۰۰۰۰۰"
+                    placeholder="09120000000"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     type="tel"
+                    dir="ltr"
+                    onKeyDown={(e) => e.key === 'Enter' && handleNext()}
                   />
                   <Smartphone className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -67,11 +96,12 @@ function AdminLoginPage() {
                       onChange={(e) => setOtp(e.target.value)}
                       type="number"
                       autoFocus
+                      onKeyDown={(e) => e.key === 'Enter' && handleNext()}
                     />
                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   </div>
                 </div>
-                <Button variant="link" className="w-full text-primary" onClick={() => setStep(1)}>
+                <Button variant="link" className="w-full text-primary" onClick={() => { setStep(1); setOtp(''); }}>
                   تغییر شماره موبایل
                 </Button>
               </div>
@@ -80,8 +110,9 @@ function AdminLoginPage() {
             <Button 
               className="w-full h-14 text-lg rounded-2xl font-bold shadow-lg shadow-primary/20"
               onClick={handleNext}
+              disabled={loading}
             >
-              {step === 1 ? t('send_otp') : t('verify_login')}
+              {loading ? "در حال بررسی..." : (step === 1 ? t('send_otp') : t('verify_login'))}
             </Button>
           </div>
         </div>
