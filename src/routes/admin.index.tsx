@@ -282,9 +282,10 @@ function AdminDashboard() {
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="text-right">
-        <TabsList className="grid w-full grid-cols-2 max-w-md mr-0 ml-auto">
+        <TabsList className="grid w-full grid-cols-3 max-w-2xl mr-0 ml-auto">
           <TabsTrigger value="shops" className="gap-2 flex-row-reverse"><Store className="w-4 h-4" />مدیریت فروشگاه‌ها</TabsTrigger>
           <TabsTrigger value="admins" className="gap-2 flex-row-reverse"><Shield className="w-4 h-4" />مدیریت ادمین‌ها</TabsTrigger>
+          <TabsTrigger value="sms" className="gap-2 flex-row-reverse"><MessageSquare className="w-4 h-4" />تنظیمات پیامک</TabsTrigger>
         </TabsList>
 
         <TabsContent value="shops" className="space-y-4 mt-6">
