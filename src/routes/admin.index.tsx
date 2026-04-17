@@ -318,7 +318,7 @@ function AdminDashboard() {
             </Button>
           </div>
           <Card className="shadow-sm border-none overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" dir="rtl">
               <Table>
                  <TableHeader className="bg-muted/50">
                    <TableRow>
