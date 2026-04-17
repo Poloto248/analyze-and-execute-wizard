@@ -308,8 +308,8 @@ function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="admins" className="space-y-4 mt-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-            <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
+          <div className="flex flex-col md:flex-row-reverse justify-between items-start md:items-center gap-4 mb-4">
+            <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2 flex-row-reverse">
               مدیریت ادمین‌ها
               <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">{admins.length}</span>
             </h2>
