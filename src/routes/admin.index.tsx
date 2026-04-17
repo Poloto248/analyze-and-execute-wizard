@@ -133,16 +133,49 @@ function AdminDashboard() {
     }
   }, []);
 
+  const fetchSmsSettings = useCallback(async () => {
+    const { data } = await supabase.from('system_settings').select('*').eq('singleton', true).maybeSingle();
+    if (data) {
+      setSmsSettings({
+        id: data.id,
+        sms_provider: data.sms_provider || 'kavenegar',
+        kavenegar_api_key: data.kavenegar_api_key || '',
+        kavenegar_sender: data.kavenegar_sender || '',
+        kavenegar_otp_template: data.kavenegar_otp_template || '',
+        otp_length: data.otp_length ?? 4,
+        otp_expiry_seconds: data.otp_expiry_seconds ?? 120,
+      });
+    }
+  }, []);
+
+  const handleSaveSmsSettings = async () => {
+    setSavingSms(true);
+    const { error } = await supabase.from('system_settings').update({
+      sms_provider: smsSettings.sms_provider,
+      kavenegar_api_key: smsSettings.kavenegar_api_key || null,
+      kavenegar_sender: smsSettings.kavenegar_sender || null,
+      kavenegar_otp_template: smsSettings.kavenegar_otp_template || null,
+      otp_length: smsSettings.otp_length,
+      otp_expiry_seconds: smsSettings.otp_expiry_seconds,
+    }).eq('id', smsSettings.id);
+    setSavingSms(false);
+    if (error) {
+      toast.error("خطا در ذخیره تنظیمات");
+    } else {
+      toast.success("تنظیمات پیامک با موفقیت ذخیره شد");
+    }
+  };
+
   useEffect(() => {
     setIsMounted(true);
     const auth = localStorage.getItem('admin_authenticated');
     if (auth === 'true') {
       setIsAuthenticated(true);
-      Promise.all([fetchShops(), fetchAdmins()]).then(() => setLoading(false));
+      Promise.all([fetchShops(), fetchAdmins(), fetchSmsSettings()]).then(() => setLoading(false));
     } else {
       navigate({ to: '/admin/login' });
     }
-  }, [navigate, fetchShops, fetchAdmins]);
+  }, [navigate, fetchShops, fetchAdmins, fetchSmsSettings]);
 
   const handleLogout = () => { localStorage.removeItem('admin_authenticated'); navigate({ to: '/admin/login' }); };
 
