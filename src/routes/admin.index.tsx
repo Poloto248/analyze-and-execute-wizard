@@ -89,6 +89,18 @@ function AdminDashboard() {
   const [adminFormData, setAdminFormData] = useState<AdminUser>({ id: '', name: '', phone: '', role: 'admin', created_at: '' });
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
 
+  // System SMS settings (Kavenegar)
+  const [smsSettings, setSmsSettings] = useState({
+    id: '',
+    sms_provider: 'kavenegar',
+    kavenegar_api_key: '',
+    kavenegar_sender: '',
+    kavenegar_otp_template: '',
+    otp_length: 4,
+    otp_expiry_seconds: 120,
+  });
+  const [savingSms, setSavingSms] = useState(false);
+
   const fetchShops = useCallback(async () => {
     const { data: shopsData } = await supabase.from('shops').select('*').order('created_at', { ascending: false });
     if (!shopsData) return;
