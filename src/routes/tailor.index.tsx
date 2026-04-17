@@ -196,16 +196,24 @@ function TailorDashboard() {
                   <div><p className="text-2xl font-bold">{branches.length}</p><p className="text-sm text-muted-foreground">شعبه</p></div>
                 </CardContent>
               </Card>
-              <Card className="shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4 flex-row-reverse">
-                  <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center"><Globe className="w-6 h-6 text-secondary" /></div>
-                  <div>
-                    <p className="text-sm font-bold" dir="ltr">{shop.subdomain}</p>
-                    <p className="text-sm text-muted-foreground">زیردامنه</p>
-                    {shop.domain && <Badge variant={shop.is_domain_active ? "default" : "outline"} className="mt-1 text-xs">{shop.domain}</Badge>}
-                  </div>
-                </CardContent>
-              </Card>
+              <a
+                href={`https://${shop.subdomain}.tailorpanel.com/customer/login`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="باز کردن پنل مشتریان این فروشگاه"
+                className="block group"
+              >
+                <Card className="shadow-sm transition-all hover:shadow-md hover:border-secondary/50 cursor-pointer">
+                  <CardContent className="p-6 flex items-center gap-4 flex-row-reverse">
+                    <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors"><Globe className="w-6 h-6 text-secondary" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate" dir="ltr">{shop.subdomain}.tailorpanel.com</p>
+                      <p className="text-sm text-muted-foreground">زیردامنه • کلیک برای پنل مشتریان</p>
+                      {shop.domain && <Badge variant={shop.is_domain_active ? "default" : "outline"} className="mt-1 text-xs">{shop.domain}</Badge>}
+                    </div>
+                  </CardContent>
+                </Card>
+              </a>
               <Card className="shadow-sm">
                 <CardContent className="p-6 flex items-center gap-4 flex-row-reverse">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><MessageSquare className="w-6 h-6 text-primary" /></div>
