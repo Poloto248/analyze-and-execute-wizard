@@ -25,8 +25,9 @@ import {
   Plus, Trash2, Key, User, Edit2, Search, MoreVertical, Store,
   Upload, GitBranch, X, Phone, MessageCircle, Globe, CheckCircle2,
   AlertCircle, LogOut, Navigation, Image as ImageIcon, Shield, ShieldCheck,
-  MessageSquare, Hash, FileText
+  MessageSquare, Hash, FileText, Send, Clock, Save
 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/")({
@@ -88,6 +89,18 @@ function AdminDashboard() {
   const [adminFormData, setAdminFormData] = useState<AdminUser>({ id: '', name: '', phone: '', role: 'admin', created_at: '' });
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
 
+  // System SMS settings (Kavenegar)
+  const [smsSettings, setSmsSettings] = useState({
+    id: '',
+    sms_provider: 'kavenegar',
+    kavenegar_api_key: '',
+    kavenegar_sender: '',
+    kavenegar_otp_template: '',
+    otp_length: 4,
+    otp_expiry_seconds: 120,
+  });
+  const [savingSms, setSavingSms] = useState(false);
+
   const fetchShops = useCallback(async () => {
     const { data: shopsData } = await supabase.from('shops').select('*').order('created_at', { ascending: false });
     if (!shopsData) return;
@@ -120,16 +133,49 @@ function AdminDashboard() {
     }
   }, []);
 
+  const fetchSmsSettings = useCallback(async () => {
+    const { data } = await supabase.from('system_settings').select('*').eq('singleton', true).maybeSingle();
+    if (data) {
+      setSmsSettings({
+        id: data.id,
+        sms_provider: data.sms_provider || 'kavenegar',
+        kavenegar_api_key: data.kavenegar_api_key || '',
+        kavenegar_sender: data.kavenegar_sender || '',
+        kavenegar_otp_template: data.kavenegar_otp_template || '',
+        otp_length: data.otp_length ?? 4,
+        otp_expiry_seconds: data.otp_expiry_seconds ?? 120,
+      });
+    }
+  }, []);
+
+  const handleSaveSmsSettings = async () => {
+    setSavingSms(true);
+    const { error } = await supabase.from('system_settings').update({
+      sms_provider: smsSettings.sms_provider,
+      kavenegar_api_key: smsSettings.kavenegar_api_key || null,
+      kavenegar_sender: smsSettings.kavenegar_sender || null,
+      kavenegar_otp_template: smsSettings.kavenegar_otp_template || null,
+      otp_length: smsSettings.otp_length,
+      otp_expiry_seconds: smsSettings.otp_expiry_seconds,
+    }).eq('id', smsSettings.id);
+    setSavingSms(false);
+    if (error) {
+      toast.error("خطا در ذخیره تنظیمات");
+    } else {
+      toast.success("تنظیمات پیامک با موفقیت ذخیره شد");
+    }
+  };
+
   useEffect(() => {
     setIsMounted(true);
     const auth = localStorage.getItem('admin_authenticated');
     if (auth === 'true') {
       setIsAuthenticated(true);
-      Promise.all([fetchShops(), fetchAdmins()]).then(() => setLoading(false));
+      Promise.all([fetchShops(), fetchAdmins(), fetchSmsSettings()]).then(() => setLoading(false));
     } else {
       navigate({ to: '/admin/login' });
     }
-  }, [navigate, fetchShops, fetchAdmins]);
+  }, [navigate, fetchShops, fetchAdmins, fetchSmsSettings]);
 
   const handleLogout = () => { localStorage.removeItem('admin_authenticated'); navigate({ to: '/admin/login' }); };
 
@@ -236,9 +282,10 @@ function AdminDashboard() {
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="text-right">
-        <TabsList className="grid w-full grid-cols-2 max-w-md mr-0 ml-auto">
+        <TabsList className="grid w-full grid-cols-3 max-w-2xl mr-0 ml-auto">
           <TabsTrigger value="shops" className="gap-2 flex-row-reverse"><Store className="w-4 h-4" />مدیریت فروشگاه‌ها</TabsTrigger>
           <TabsTrigger value="admins" className="gap-2 flex-row-reverse"><Shield className="w-4 h-4" />مدیریت ادمین‌ها</TabsTrigger>
+          <TabsTrigger value="sms" className="gap-2 flex-row-reverse"><MessageSquare className="w-4 h-4" />تنظیمات پیامک</TabsTrigger>
         </TabsList>
 
         <TabsContent value="shops" className="space-y-4 mt-6">
@@ -363,6 +410,128 @@ function AdminDashboard() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sms" className="space-y-4 mt-6">
+          <div className="flex flex-col md:flex-row-reverse justify-between items-start md:items-center gap-4 mb-4">
+            <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2 flex-row-reverse">
+              <MessageSquare className="w-5 h-5 text-primary" />
+              تنظیمات پیامک سراسری
+            </h2>
+          </div>
+
+          <Card className="p-6 space-y-6 text-right">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground leading-7">
+                این تنظیمات برای ارسال کد یکبارمصرف (OTP) <strong>ورود مدیریت کل</strong> و <strong>ورود مدیران فروشگاه‌ها</strong> استفاده می‌شود.
+                هر فروشگاه برای ورود مشتریان خود به پنل کاربری، API پیامکی اختصاصی دارد که از بخش «مدیریت فروشگاه‌ها» قابل تنظیم است.
+              </p>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg flex items-center gap-2 flex-row-reverse">
+                <Send className="w-5 h-5 text-primary" />
+                ارائه‌دهنده سرویس پیامک
+              </h3>
+              <div className="space-y-2 max-w-sm">
+                <Label>سرویس پیامک</Label>
+                <Select value={smsSettings.sms_provider} onValueChange={(val) => setSmsSettings({ ...smsSettings, sms_provider: val })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="kavenegar">کاوه‌نگار (Kavenegar)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg flex items-center gap-2 flex-row-reverse">
+                <Key className="w-5 h-5 text-secondary" />
+                اعتبارنامه کاوه‌نگار
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <Label className="flex items-center gap-1.5"><Key className="w-3.5 h-3.5 text-muted-foreground" />API Key</Label>
+                  <Input
+                    value={smsSettings.kavenegar_api_key}
+                    onChange={(e) => setSmsSettings({ ...smsSettings, kavenegar_api_key: e.target.value })}
+                    placeholder="کلید API پنل کاوه‌نگار"
+                    dir="ltr"
+                    type="password"
+                  />
+                  <p className="text-xs text-muted-foreground">از پنل کاوه‌نگار → بخش API دریافت می‌شود.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5 text-muted-foreground" />شماره خط ارسال‌کننده</Label>
+                  <Input
+                    value={smsSettings.kavenegar_sender}
+                    onChange={(e) => setSmsSettings({ ...smsSettings, kavenegar_sender: e.target.value })}
+                    placeholder="مثلاً 10004346"
+                    dir="ltr"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-muted-foreground" />نام الگو (Template)</Label>
+                  <Input
+                    value={smsSettings.kavenegar_otp_template}
+                    onChange={(e) => setSmsSettings({ ...smsSettings, kavenegar_otp_template: e.target.value })}
+                    placeholder="نام الگوی OTP در پنل"
+                    dir="ltr"
+                  />
+                  <p className="text-xs text-muted-foreground">برای استفاده از Verify Lookup کاوه‌نگار.</p>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg flex items-center gap-2 flex-row-reverse">
+                <Clock className="w-5 h-5 text-primary" />
+                تنظیمات کد یکبارمصرف (OTP)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>طول کد OTP (رقم)</Label>
+                  <Select
+                    value={String(smsSettings.otp_length)}
+                    onValueChange={(val) => setSmsSettings({ ...smsSettings, otp_length: Number(val) })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="4">۴ رقمی</SelectItem>
+                      <SelectItem value="5">۵ رقمی</SelectItem>
+                      <SelectItem value="6">۶ رقمی</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>زمان انقضا (ثانیه)</Label>
+                  <Input
+                    type="number"
+                    min={30}
+                    max={600}
+                    value={smsSettings.otp_expiry_seconds}
+                    onChange={(e) => setSmsSettings({ ...smsSettings, otp_expiry_seconds: Number(e.target.value) || 120 })}
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex justify-start">
+              <Button onClick={handleSaveSmsSettings} disabled={savingSms} className="gap-2">
+                <Save className="w-4 h-4" />
+                {savingSms ? 'در حال ذخیره...' : 'ذخیره تنظیمات پیامک'}
+              </Button>
             </div>
           </Card>
         </TabsContent>

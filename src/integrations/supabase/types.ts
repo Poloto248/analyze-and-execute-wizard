@@ -184,6 +184,45 @@ export type Database = {
         }
         Relationships: []
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          id: string
+          kavenegar_api_key: string | null
+          kavenegar_otp_template: string | null
+          kavenegar_sender: string | null
+          otp_expiry_seconds: number
+          otp_length: number
+          singleton: boolean
+          sms_provider: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kavenegar_api_key?: string | null
+          kavenegar_otp_template?: string | null
+          kavenegar_sender?: string | null
+          otp_expiry_seconds?: number
+          otp_length?: number
+          singleton?: boolean
+          sms_provider?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kavenegar_api_key?: string | null
+          kavenegar_otp_template?: string | null
+          kavenegar_sender?: string | null
+          otp_expiry_seconds?: number
+          otp_length?: number
+          singleton?: boolean
+          sms_provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
