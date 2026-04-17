@@ -326,7 +326,7 @@ function AdminDashboard() {
                      <TableHead className="text-right">شماره تماس</TableHead>
                      <TableHead className="text-right">سطح دسترسی</TableHead>
                      <TableHead className="hidden sm:table-cell text-right">تاریخ ایجاد</TableHead>
-                     <TableHead className="text-center">عملیات</TableHead>
+                     <TableHead className="text-left">عملیات</TableHead>
                    </TableRow>
                  </TableHeader>
                 <TableBody>
@@ -334,25 +334,25 @@ function AdminDashboard() {
                     <TableRow><TableCell colSpan={5} className="h-32 text-center text-muted-foreground">هیچ ادمینی یافت نشد.</TableCell></TableRow>
                   ) : admins.map((admin) => (
                     <TableRow key={admin.id} className="hover:bg-muted/30 transition-colors">
-                      <TableCell>
-                        <div className="flex items-center gap-3">
+                      <TableCell className="text-right">
+                        <div className="flex items-center gap-3 flex-row-reverse justify-end">
                           <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${admin.role === 'super_admin' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
                             {admin.role === 'super_admin' ? <ShieldCheck className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
                           </div>
                           <span className="font-bold">{admin.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono text-sm" dir="ltr">{admin.phone}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-mono text-sm text-right" dir="ltr">{admin.phone}</TableCell>
+                      <TableCell className="text-right">
                         <Badge variant={admin.role === 'super_admin' ? 'default' : 'secondary'} className={admin.role === 'super_admin' ? 'bg-amber-100 text-amber-800' : ''}>
                           {admin.role === 'super_admin' ? 'سوپر ادمین' : 'ادمین'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{admin.created_at}</TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden sm:table-cell text-muted-foreground text-sm text-right">{admin.created_at}</TableCell>
+                      <TableCell className="text-left">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="start">
                             <DropdownMenuItem onClick={() => startEditAdmin(admin)}><Edit2 className="w-4 h-4 ml-2" />ویرایش</DropdownMenuItem>
                             <Separator className="my-1" />
                             <DropdownMenuItem className="text-destructive" onClick={() => deleteAdmin(admin.id)}><Trash2 className="w-4 h-4 ml-2" />حذف</DropdownMenuItem>
